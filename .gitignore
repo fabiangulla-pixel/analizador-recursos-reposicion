@@ -1,0 +1,31 @@
+# Entornos virtuales
+venv_build/
+venv/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.ruff_cache/
+
+# Artefactos de compilación (PyInstaller)
+build/
+dist/
+build_log.txt
+
+# Salidas generadas por el análisis
+prueba/resultados/
+analisis.log
+*.log
+
+# Caché de modelos de embeddings
+_modelos_cache/
+
+# Secretos y configuración local (el proyecto no usa API keys, por si acaso)
+.env
+
+# Sistema
+.DS_Store
+Thumbs.db

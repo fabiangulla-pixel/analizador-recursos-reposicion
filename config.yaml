@@ -1,0 +1,34 @@
+# Configuración centralizada de la aplicación
+# Todos los umbrales y parámetros ajustables están aquí.
+
+ingesta:
+  extensiones_soportadas: [".pdf", ".docx", ".txt"]
+  encoding_fallback: "latin-1"
+
+procesamiento:
+  # Longitud mínima de un bloque para considerarlo argumento (en caracteres)
+  min_longitud_bloque: 80
+  # Modelo de embeddings (debe ser compatible con sentence-transformers)
+  # Modelo pequeño y multilingüe recomendado para velocidad y empaquetado
+  modelo_embeddings: "paraphrase-multilingual-MiniLM-L12-v2"
+  # Umbral de similitud coseno para considerar dos argumentos "iguales" (0.0 - 1.0)
+  umbral_similitud: 0.75
+  # Umbral para considerar que un argumento YA fue resuelto en la decisión base
+  umbral_resuelto: 0.70
+  # Método de clustering: "kmeans" o "agglomerative"
+  metodo_clustering: "agglomerative"
+  # Número máximo de clusters (solo para kmeans). "auto" usa heurística.
+  max_clusters: "auto"
+  # Umbral de distancia para agglomerative clustering (1 - similitud)
+  umbral_distancia: 0.30
+
+exportacion:
+  # Formatos de salida habilitados
+  generar_xlsx: true
+  generar_csv: true
+  generar_json: true
+  generar_markdown: true
+
+logging:
+  nivel: "INFO"         # DEBUG, INFO, WARNING, ERROR
+  archivo_log: "analisis.log"

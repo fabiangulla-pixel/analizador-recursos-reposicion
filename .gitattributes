@@ -1,0 +1,12 @@
+# Normalizar fin de línea automáticamente (evita ruido LF/CRLF en Windows)
+* text=auto
+
+# Los .bat deben conservar CRLF para funcionar en Windows
+*.bat text eol=crlf
+
+# Binarios
+*.docx binary
+*.pdf binary
+*.ico binary
+*.png binary
+*.xlsx binary

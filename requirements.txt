@@ -1,0 +1,25 @@
+# Dependencias del proyecto
+# Instalar con: pip install -r requirements.txt
+
+# Lectura de documentos
+pdfplumber>=0.10.0
+python-docx>=1.1.0
+
+# Procesamiento de datos
+pandas>=2.1.0
+numpy>=1.26.0
+
+# NLP y embeddings
+sentence-transformers>=2.7.0
+
+# Clustering
+scikit-learn>=1.4.0
+
+# Exportación
+openpyxl>=3.1.0
+
+# Configuración
+PyYAML>=6.0.1
+
+# Empaquetado (solo en equipo de desarrollo)
+pyinstaller>=6.5.0
