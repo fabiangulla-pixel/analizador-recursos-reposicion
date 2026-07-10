@@ -4,7 +4,15 @@ Todas las novedades relevantes del proyecto, de la más reciente a la más antig
 
 ## [1.1.0] — 2026-07-10 · Pase de calidad (Modo-Ingeniero)
 
-Sin cambios de comportamiento en el pipeline validado.
+Sin cambios de comportamiento en el pipeline validado, salvo una mejora de
+robustez del .exe:
+
+### Corregido
+- **El .exe ya no requiere internet si el modelo está descargado**: al detectar
+  el modelo en `_modelos_cache/` se fuerza `HF_HUB_OFFLINE=1` antes de importar
+  sentence-transformers. Sin esto, HuggingFace hace una petición HEAD de
+  verificación al hub y el análisis falla en equipos sin conexión aunque el
+  modelo esté completo en disco (lección aprendida en otros .exe congelados).
 
 ### Infraestructura
 - **Control de versiones**: repositorio git con `.gitignore` y `.gitattributes`;

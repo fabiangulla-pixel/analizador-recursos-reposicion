@@ -33,6 +33,28 @@ def _get_cache_dir() -> str:
     return None  # None = HuggingFace usa su cache por defecto (~/.cache/huggingface)
 
 
+def _modelo_en_cache(cache_dir: str | None, nombre_modelo: str) -> bool:
+    """True si el modelo ya está descargado en la carpeta de caché local."""
+    if not cache_dir or not os.path.isdir(cache_dir):
+        return False
+    slug = nombre_modelo.replace("/", "--")
+    plano = nombre_modelo.replace("/", "_")
+    return any(slug in entrada or plano in entrada for entrada in os.listdir(cache_dir))
+
+
+def _activar_modo_offline_si_cacheado(cache_dir: str | None, nombre_modelo: str) -> bool:
+    """
+    Si el modelo ya está en caché, fuerza el modo offline de HuggingFace.
+    Sin esto, el .exe hace una petición HEAD de verificación al hub y falla
+    en equipos sin internet aunque el modelo esté completo en disco.
+    """
+    if _modelo_en_cache(cache_dir, nombre_modelo):
+        os.environ.setdefault("HF_HUB_OFFLINE", "1")
+        os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+        return True
+    return False
+
+
 def cargar_modelo(nombre_modelo: str) -> None:
     """Carga el modelo de embeddings en memoria (solo la primera vez)."""
     global _modelo, _nombre_modelo_cargado
@@ -43,9 +65,14 @@ def cargar_modelo(nombre_modelo: str) -> None:
     import io
     import sys
 
+    # Antes de importar sentence_transformers: HuggingFace lee las variables
+    # de entorno offline en el momento del import.
+    cache_dir = _get_cache_dir()
+    if _activar_modo_offline_si_cacheado(cache_dir, nombre_modelo):
+        logger.info("Modelo ya en caché local: modo offline activado (HF_HUB_OFFLINE=1).")
+
     from sentence_transformers import SentenceTransformer
 
-    cache_dir = _get_cache_dir()
     logger.info(f"Cargando modelo de embeddings: {nombre_modelo}")
 
     _old_stdout = sys.stdout
