@@ -3,8 +3,9 @@ config_loader.py
 Carga config.yaml de forma segura tanto en modo desarrollo como empaquetado con PyInstaller.
 """
 
-import sys
 import os
+import sys
+
 import yaml
 
 

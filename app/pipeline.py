@@ -6,21 +6,22 @@ Diseñado para ejecutarse en un hilo separado para no bloquear la GUI.
 """
 
 import os
-from typing import Callable, Optional, Dict, Any
+from collections.abc import Callable
+from typing import Any
 
 from app.config_loader import cargar_config
-from ingesta.reader import leer_archivo, leer_carpeta
-from ingesta.cleaner import limpiar_bloques
-from procesamiento.segmentador import segmentar_bloques
-from procesamiento.vectorizador import cargar_modelo, vectorizar
-from procesamiento.agrupador import agrupar_argumentos, construir_grupos
-from procesamiento.comparador import comparar_con_base, comparar_grupos_con_base
-from exportacion.matriz import exportar_matriz
 from exportacion.consolidado import exportar_consolidado_json, exportar_consolidado_markdown
 from exportacion.indice import exportar_indice_decision
+from exportacion.matriz import exportar_matriz
 from exportacion.reporte import exportar_reporte_ejecutivo
 from exportacion.trazabilidad import exportar_trazabilidad
 from exportacion.word_export import exportar_informe_word
+from ingesta.cleaner import limpiar_bloques
+from ingesta.reader import leer_archivo, leer_carpeta
+from procesamiento.agrupador import agrupar_argumentos, construir_grupos
+from procesamiento.comparador import comparar_con_base, comparar_grupos_con_base
+from procesamiento.segmentador import segmentar_bloques
+from procesamiento.vectorizador import cargar_modelo, vectorizar
 from utils.logger import configurar_logger, obtener_logger
 
 
@@ -28,8 +29,8 @@ def ejecutar_analisis(
     ruta_base: str,
     carpeta_recursos: str,
     carpeta_salida: str,
-    callback_progreso: Optional[Callable[[str, int], None]] = None,
-) -> Dict[str, Any]:
+    callback_progreso: Callable[[str, int], None] | None = None,
+) -> dict[str, Any]:
     """
     Ejecuta el pipeline completo de análisis.
 
@@ -42,6 +43,7 @@ def ejecutar_analisis(
     Returns:
         Dict con resumen del análisis o clave 'error' si falló.
     """
+
     def progreso(msg: str, pct: int) -> None:
         if callback_progreso:
             callback_progreso(msg, pct)
@@ -60,7 +62,6 @@ def ejecutar_analisis(
         enc = cfg["ingesta"]["encoding_fallback"]
         min_lon = cfg["procesamiento"]["min_longitud_bloque"]
         modelo_nombre = cfg["procesamiento"]["modelo_embeddings"]
-        umbral_sim = cfg["procesamiento"]["umbral_similitud"]
         umbral_res = cfg["procesamiento"]["umbral_resuelto"]
         umbral_dist = cfg["procesamiento"]["umbral_distancia"]
         metodo_cl = cfg["procesamiento"]["metodo_clustering"]
@@ -108,7 +109,8 @@ def ejecutar_analisis(
         # ── 7. Exportar resultados ──────────────────────────────────────────
         progreso("Exportando matriz de argumentos...", 80)
         exportar_matriz(
-            argumentos, carpeta_salida,
+            argumentos,
+            carpeta_salida,
             cfg["exportacion"]["generar_xlsx"],
             cfg["exportacion"]["generar_csv"],
         )
@@ -143,6 +145,7 @@ def ejecutar_analisis(
 
     except Exception as e:
         import traceback
+
         msg = f"Error en el análisis: {e}\n{traceback.format_exc()}"
         obtener_logger().error(msg)
         return {"error": str(e)}

@@ -5,16 +5,15 @@ Elimina ruido sin destruir contenido jurídico relevante.
 """
 
 import re
-from typing import List, Dict, Any
-
+from typing import Any
 
 # Patrones de ruido comunes en documentos jurídicos escaneados/exportados
 _PATRONES_RUIDO = [
     r"Página\s+\d+\s+de\s+\d+",
-    r"^\s*\d+\s*$",              # Líneas con solo número de página
-    r"_{3,}",                    # Líneas de subrayado decorativo
-    r"-{3,}",                    # Líneas de guiones decorativos
-    r"\f",                       # Saltos de página (form feed)
+    r"^\s*\d+\s*$",  # Líneas con solo número de página
+    r"_{3,}",  # Líneas de subrayado decorativo
+    r"-{3,}",  # Líneas de guiones decorativos
+    r"\f",  # Saltos de página (form feed)
 ]
 
 _RE_RUIDO = re.compile("|".join(_PATRONES_RUIDO), re.IGNORECASE | re.MULTILINE)
@@ -35,7 +34,7 @@ def limpiar_texto(texto: str) -> str:
     return texto.strip()
 
 
-def limpiar_bloques(bloques: List[Dict[str, Any]], min_longitud: int = 80) -> List[Dict[str, Any]]:
+def limpiar_bloques(bloques: list[dict[str, Any]], min_longitud: int = 80) -> list[dict[str, Any]]:
     """
     Aplica limpiar_texto() a cada bloque y descarta los que queden
     con menos de min_longitud caracteres (ruido puro).

@@ -6,31 +6,32 @@ propuesta de índice y registro de trazabilidad resumida.
 """
 
 import os
-from typing import List, Dict, Any
 from datetime import datetime
+from typing import Any
 
 from docx import Document
-from docx.shared import Pt, RGBColor, Inches, Cm
+from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
-from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+from docx.shared import Cm, Pt, RGBColor
 
 from utils.logger import obtener_logger
 
 logger = obtener_logger()
 
 # ── Paleta de colores ────────────────────────────────────────────────────────
-AZUL_OSCURO  = RGBColor(0x1A, 0x4A, 0x6E)   # encabezados principales
-AZUL_MEDIO   = RGBColor(0x2C, 0x5F, 0x8A)   # encabezados secundarios
-DORADO       = RGBColor(0xD4, 0xAF, 0x37)   # líneas decorativas / alertas
-VERDE        = RGBColor(0x1B, 0x6B, 0x3A)   # "Sí resuelto"
-NARANJA      = RGBColor(0xE6, 0x7E, 0x00)   # "Probablemente"
-ROJO         = RGBColor(0xC0, 0x39, 0x2B)   # "No resuelto"
-GRIS_FONDO   = "D9E2F3"                      # fondo celdas encabezado tabla (hex sin #)
+AZUL_OSCURO = RGBColor(0x1A, 0x4A, 0x6E)  # encabezados principales
+AZUL_MEDIO = RGBColor(0x2C, 0x5F, 0x8A)  # encabezados secundarios
+DORADO = RGBColor(0xD4, 0xAF, 0x37)  # líneas decorativas / alertas
+VERDE = RGBColor(0x1B, 0x6B, 0x3A)  # "Sí resuelto"
+NARANJA = RGBColor(0xE6, 0x7E, 0x00)  # "Probablemente"
+ROJO = RGBColor(0xC0, 0x39, 0x2B)  # "No resuelto"
+GRIS_FONDO = "D9E2F3"  # fondo celdas encabezado tabla (hex sin #)
 
 
 # ── Utilidades de formato ────────────────────────────────────────────────────
+
 
 def _set_cell_bg(cell, hex_color: str):
     """Pone color de fondo a una celda de tabla."""
@@ -92,6 +93,7 @@ def _resumir(texto: str, max_chars: int = 250) -> str:
 
 # ── Secciones del documento ──────────────────────────────────────────────────
 
+
 def _portada(doc: Document, n_args: int, n_grupos: int) -> None:
     doc.add_paragraph()
     doc.add_paragraph()
@@ -128,7 +130,7 @@ def _portada(doc: Document, n_args: int, n_grupos: int) -> None:
     tabla.style = "Table Grid"
     tabla.alignment = WD_TABLE_ALIGNMENT.CENTER
     fila = tabla.rows[0].cells
-    fila[0].text = f"Total de argumentos procesados"
+    fila[0].text = "Total de argumentos procesados"
     fila[1].text = str(n_args)
     tabla.add_row().cells[0].text = "Grupos argumentales identificados"
     tabla.rows[1].cells[1].text = str(n_grupos)
@@ -143,32 +145,34 @@ def _portada(doc: Document, n_args: int, n_grupos: int) -> None:
 
 def _reporte_ejecutivo(
     doc: Document,
-    argumentos: List[Dict[str, Any]],
-    grupos: List[Dict[str, Any]],
+    argumentos: list[dict[str, Any]],
+    grupos: list[dict[str, Any]],
 ) -> None:
     _add_heading(doc, "I. REPORTE EJECUTIVO", 1)
 
     total = len(argumentos)
-    resueltos   = sum(1 for a in argumentos if a.get("ya_resuelto_en_decision_base") == "SI")
-    probables   = sum(1 for a in argumentos if a.get("ya_resuelto_en_decision_base") == "PROBABLEMENTE")
-    nuevos      = sum(1 for a in argumentos if a.get("ya_resuelto_en_decision_base") == "NO")
-    rev_humana  = sum(1 for a in argumentos if a.get("requiere_revision_humana"))
-    docs        = sorted({a["archivo"] for a in argumentos})
-    grp_recur   = sum(1 for g in grupos if g.get("recurrente"))
+    resueltos = sum(1 for a in argumentos if a.get("ya_resuelto_en_decision_base") == "SI")
+    probables = sum(
+        1 for a in argumentos if a.get("ya_resuelto_en_decision_base") == "PROBABLEMENTE"
+    )
+    nuevos = sum(1 for a in argumentos if a.get("ya_resuelto_en_decision_base") == "NO")
+    rev_humana = sum(1 for a in argumentos if a.get("requiere_revision_humana"))
+    docs = sorted({a["archivo"] for a in argumentos})
+    grp_recur = sum(1 for g in grupos if g.get("recurrente"))
 
     # Tabla de métricas
     tabla = doc.add_table(rows=0, cols=2)
     tabla.style = "Table Grid"
 
     metricas = [
-        ("Documentos analizados",               str(len(docs))),
-        ("Total de bloques argumentativos",      str(total)),
-        ("Grupos argumentales identificados",    str(len(grupos))),
-        ("Grupos recurrentes (varios docs)",     str(grp_recur)),
-        ("Argumentos ya resueltos en base",      str(resueltos)),
-        ("Argumentos probablemente resueltos",   str(probables)),
-        ("Argumentos nuevos (sin respuesta)",    str(nuevos)),
-        ("Requieren revisión humana",            str(rev_humana)),
+        ("Documentos analizados", str(len(docs))),
+        ("Total de bloques argumentativos", str(total)),
+        ("Grupos argumentales identificados", str(len(grupos))),
+        ("Grupos recurrentes (varios docs)", str(grp_recur)),
+        ("Argumentos ya resueltos en base", str(resueltos)),
+        ("Argumentos probablemente resueltos", str(probables)),
+        ("Argumentos nuevos (sin respuesta)", str(nuevos)),
+        ("Requieren revisión humana", str(rev_humana)),
     ]
 
     for etiqueta, valor in metricas:
@@ -195,11 +199,17 @@ def _reporte_ejecutivo(
     _add_heading(doc, "Alertas", 2)
     alertas = []
     if nuevos > 0:
-        alertas.append(f"Se identificaron {nuevos} argumentos nuevos que requieren respuesta expresa.")
+        alertas.append(
+            f"Se identificaron {nuevos} argumentos nuevos que requieren respuesta expresa."
+        )
     if probables > 0:
-        alertas.append(f"{probables} argumentos probablemente ya resueltos — confirmar antes de omitir respuesta.")
+        alertas.append(
+            f"{probables} argumentos probablemente ya resueltos — confirmar antes de omitir respuesta."
+        )
     if rev_humana > 0:
-        alertas.append(f"{rev_humana} argumentos requieren revisión humana por confianza baja o media.")
+        alertas.append(
+            f"{rev_humana} argumentos requieren revisión humana por confianza baja o media."
+        )
     if not alertas:
         alertas.append("No se generaron alertas.")
     for a in alertas:
@@ -210,14 +220,27 @@ def _reporte_ejecutivo(
     doc.add_page_break()
 
 
-def _tabla_argumentos(doc: Document, argumentos: List[Dict[str, Any]]) -> None:
+def _tabla_argumentos(doc: Document, argumentos: list[dict[str, Any]]) -> None:
     _add_heading(doc, "II. MATRIZ DE ARGUMENTOS", 1)
-    _add_paragraph(doc,
+    _add_paragraph(
+        doc,
         "La siguiente tabla resume todos los argumentos extraídos de los recursos de reposición, "
-        "con su grupo, estado de resolución y nivel de confianza.", italic=True)
+        "con su grupo, estado de resolución y nivel de confianza.",
+        italic=True,
+    )
     doc.add_paragraph()
 
-    COLS = ["#", "Documento", "Pág.", "Grupo", "Tipo", "Texto (resumen)", "¿Resuelto?", "Confianza", "Rev. humana"]
+    COLS = [
+        "#",
+        "Documento",
+        "Pág.",
+        "Grupo",
+        "Tipo",
+        "Texto (resumen)",
+        "¿Resuelto?",
+        "Confianza",
+        "Rev. humana",
+    ]
     ANCHOS = [Cm(0.8), Cm(3.5), Cm(1.0), Cm(2.0), Cm(2.0), Cm(6.5), Cm(2.2), Cm(2.0), Cm(2.0)]
 
     tabla = doc.add_table(rows=1, cols=len(COLS))
@@ -267,11 +290,13 @@ def _tabla_argumentos(doc: Document, argumentos: List[Dict[str, Any]]) -> None:
     doc.add_page_break()
 
 
-def _grupos_argumentales(doc: Document, grupos: List[Dict[str, Any]]) -> None:
+def _grupos_argumentales(doc: Document, grupos: list[dict[str, Any]]) -> None:
     _add_heading(doc, "III. GRUPOS ARGUMENTALES", 1)
-    _add_paragraph(doc,
+    _add_paragraph(
+        doc,
         "Cada grupo agrupa argumentos semánticamente similares encontrados en los recursos.",
-        italic=True)
+        italic=True,
+    )
 
     for g in grupos:
         gid = g.get("grupo_id", 0)
@@ -334,8 +359,8 @@ def _grupos_argumentales(doc: Document, grupos: List[Dict[str, Any]]) -> None:
                 p_m = doc.add_paragraph(style="List Bullet")
                 p_m.paragraph_format.left_indent = Cm(0.5)
                 r_m = p_m.add_run(
-                    f"[{m.get('archivo','')} p.{m.get('pagina','')}] "
-                    f"{_resumir(m.get('texto',''), 180)}"
+                    f"[{m.get('archivo', '')} p.{m.get('pagina', '')}] "
+                    f"{_resumir(m.get('texto', ''), 180)}"
                 )
                 r_m.font.size = Pt(8)
 
@@ -344,32 +369,34 @@ def _grupos_argumentales(doc: Document, grupos: List[Dict[str, Any]]) -> None:
     doc.add_page_break()
 
 
-def _propuesta_indice(doc: Document, grupos: List[Dict[str, Any]]) -> None:
+def _propuesta_indice(doc: Document, grupos: list[dict[str, Any]]) -> None:
     _add_heading(doc, "IV. PROPUESTA DE ÍNDICE PARA LA DECISIÓN FINAL", 1)
-    _add_paragraph(doc,
+    _add_paragraph(
+        doc,
         "Estructura sugerida para redactar la decisión que resuelve los recursos. "
-        "Debe ser revisada y ajustada por el funcionario responsable.", italic=True)
+        "Debe ser revisada y ajustada por el funcionario responsable.",
+        italic=True,
+    )
     doc.add_paragraph()
 
-    resueltos  = [g for g in grupos if g.get("ya_resuelto") == "SI"]
-    probables  = [g for g in grupos if g.get("ya_resuelto") == "PROBABLEMENTE"]
-    nuevos     = [g for g in grupos if g.get("ya_resuelto") == "NO"]
-
-    secciones = [
-        ("I. Consideraciones preliminares",
-         ["Competencia para resolver", "Oportunidad de los recursos", "Legitimación de los recurrentes"]),
-    ]
+    resueltos = [g for g in grupos if g.get("ya_resuelto") == "SI"]
+    probables = [g for g in grupos if g.get("ya_resuelto") == "PROBABLEMENTE"]
+    nuevos = [g for g in grupos if g.get("ya_resuelto") == "NO"]
 
     _add_heading(doc, "I. Consideraciones preliminares", 2)
-    for item in ["Competencia para resolver", "Oportunidad de los recursos", "Legitimación de los recurrentes"]:
+    for item in [
+        "Competencia para resolver",
+        "Oportunidad de los recursos",
+        "Legitimación de los recurrentes",
+    ]:
         p = doc.add_paragraph(style="List Number")
         p.add_run(item).font.size = Pt(10)
 
     _add_heading(doc, "II. Argumentos nuevos (requieren respuesta expresa)", 2)
     if nuevos:
-        for i, g in enumerate(nuevos, 1):
+        for g in nuevos:
             p = doc.add_paragraph(style="List Number")
-            txt = f"Grupo {g['grupo_id']+1}: {_resumir(g.get('texto_representativo',''), 150)}"
+            txt = f"Grupo {g['grupo_id'] + 1}: {_resumir(g.get('texto_representativo', ''), 150)}"
             r = p.add_run(txt)
             r.font.size = Pt(10)
     else:
@@ -377,20 +404,24 @@ def _propuesta_indice(doc: Document, grupos: List[Dict[str, Any]]) -> None:
 
     _add_heading(doc, "III. Argumentos posiblemente ya resueltos (verificar)", 2)
     if probables:
-        for i, g in enumerate(probables, 1):
+        for g in probables:
             p = doc.add_paragraph(style="List Number")
-            txt = (f"Grupo {g['grupo_id']+1} — similitud {g.get('similitud_base',0):.1%}: "
-                   f"{_resumir(g.get('texto_representativo',''), 130)}")
+            txt = (
+                f"Grupo {g['grupo_id'] + 1} — similitud {g.get('similitud_base', 0):.1%}: "
+                f"{_resumir(g.get('texto_representativo', ''), 130)}"
+            )
             p.add_run(txt).font.size = Pt(10)
     else:
         _add_paragraph(doc, "(Ninguno en esta categoría.)", italic=True)
 
     _add_heading(doc, "IV. Argumentos ya resueltos (confirmar y ratificar)", 2)
     if resueltos:
-        for i, g in enumerate(resueltos, 1):
+        for g in resueltos:
             p = doc.add_paragraph(style="List Number")
-            txt = (f"Grupo {g['grupo_id']+1} — similitud {g.get('similitud_base',0):.1%}: "
-                   f"{_resumir(g.get('texto_representativo',''), 130)}")
+            txt = (
+                f"Grupo {g['grupo_id'] + 1} — similitud {g.get('similitud_base', 0):.1%}: "
+                f"{_resumir(g.get('texto_representativo', ''), 130)}"
+            )
             p.add_run(txt).font.size = Pt(10)
     else:
         _add_paragraph(doc, "(Ninguno en esta categoría.)", italic=True)
@@ -403,11 +434,14 @@ def _propuesta_indice(doc: Document, grupos: List[Dict[str, Any]]) -> None:
     doc.add_page_break()
 
 
-def _trazabilidad_resumida(doc: Document, argumentos: List[Dict[str, Any]]) -> None:
+def _trazabilidad_resumida(doc: Document, argumentos: list[dict[str, Any]]) -> None:
     _add_heading(doc, "V. TRAZABILIDAD (resumen)", 1)
-    _add_paragraph(doc,
+    _add_paragraph(
+        doc,
         "Los siguientes registros permiten rastrear cada argumento hasta su documento y página de origen. "
-        "El archivo trazabilidad.json contiene la información completa para auditoría técnica.", italic=True)
+        "El archivo trazabilidad.json contiene la información completa para auditoría técnica.",
+        italic=True,
+    )
     doc.add_paragraph()
 
     # Solo los que requieren revisión humana
@@ -418,10 +452,10 @@ def _trazabilidad_resumida(doc: Document, argumentos: List[Dict[str, Any]]) -> N
             estado = a.get("ya_resuelto_en_decision_base", "")
             p = doc.add_paragraph(style="List Bullet")
             r = p.add_run(
-                f"[{a.get('archivo','')} p.{a.get('pagina','')}] "
-                f"G{a.get('grupo_id',0)+1} | Estado: {estado} | "
-                f"Similitud: {a.get('similitud_base',0):.1%} — "
-                f"{_resumir(a.get('texto',''), 160)}"
+                f"[{a.get('archivo', '')} p.{a.get('pagina', '')}] "
+                f"G{a.get('grupo_id', 0) + 1} | Estado: {estado} | "
+                f"Similitud: {a.get('similitud_base', 0):.1%} — "
+                f"{_resumir(a.get('texto', ''), 160)}"
             )
             r.font.size = Pt(8)
             r.font.color.rgb = NARANJA
@@ -429,9 +463,10 @@ def _trazabilidad_resumida(doc: Document, argumentos: List[Dict[str, Any]]) -> N
 
 # ── Función principal de exportación ────────────────────────────────────────
 
+
 def exportar_informe_word(
-    argumentos: List[Dict[str, Any]],
-    grupos: List[Dict[str, Any]],
+    argumentos: list[dict[str, Any]],
+    grupos: list[dict[str, Any]],
     carpeta_salida: str,
 ) -> None:
     """
@@ -444,10 +479,10 @@ def exportar_informe_word(
 
     # Márgenes
     for section in doc.sections:
-        section.top_margin    = Cm(2.5)
+        section.top_margin = Cm(2.5)
         section.bottom_margin = Cm(2.5)
-        section.left_margin   = Cm(3.0)
-        section.right_margin  = Cm(2.5)
+        section.left_margin = Cm(3.0)
+        section.right_margin = Cm(2.5)
 
     # Fuente por defecto
     doc.styles["Normal"].font.name = "Calibri"

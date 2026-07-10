@@ -6,10 +6,9 @@ Los logs se escriben a consola y a archivo en la carpeta de salida.
 
 import logging
 import os
-from typing import Optional
 
 
-def configurar_logger(nivel: str = "INFO", ruta_log: Optional[str] = None) -> logging.Logger:
+def configurar_logger(nivel: str = "INFO", ruta_log: str | None = None) -> logging.Logger:
     """
     Configura y devuelve el logger principal de la aplicación.
 

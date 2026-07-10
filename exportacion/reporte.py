@@ -4,8 +4,8 @@ Genera el reporte ejecutivo del análisis en formato Markdown.
 """
 
 import os
-from typing import List, Dict, Any
 from datetime import datetime
+from typing import Any
 
 from utils.logger import obtener_logger
 
@@ -13,8 +13,8 @@ logger = obtener_logger()
 
 
 def exportar_reporte_ejecutivo(
-    argumentos: List[Dict[str, Any]],
-    grupos: List[Dict[str, Any]],
+    argumentos: list[dict[str, Any]],
+    grupos: list[dict[str, Any]],
     carpeta_salida: str,
 ) -> None:
     os.makedirs(carpeta_salida, exist_ok=True)
@@ -25,7 +25,9 @@ def exportar_reporte_ejecutivo(
     total_grupos = len(grupos)
     grupos_recurrentes = sum(1 for g in grupos if g.get("recurrente"))
     resueltos = sum(1 for a in argumentos if a.get("ya_resuelto_en_decision_base") == "SI")
-    probables = sum(1 for a in argumentos if a.get("ya_resuelto_en_decision_base") == "PROBABLEMENTE")
+    probables = sum(
+        1 for a in argumentos if a.get("ya_resuelto_en_decision_base") == "PROBABLEMENTE"
+    )
     nuevos = sum(1 for a in argumentos if a.get("ya_resuelto_en_decision_base") == "NO")
     rev_humana = sum(1 for a in argumentos if a.get("requiere_revision_humana"))
 
@@ -38,12 +40,12 @@ def exportar_reporte_ejecutivo(
     fecha = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     lineas = [
-        f"# Reporte ejecutivo del análisis",
+        "# Reporte ejecutivo del análisis",
         f"_Generado el {fecha}_\n",
         "---\n",
         "## Resumen general\n",
-        f"| Métrica | Valor |",
-        f"|---|---|",
+        "| Métrica | Valor |",
+        "|---|---|",
         f"| Documentos procesados | {len(docs)} |",
         f"| Total de bloques extraídos | {total_args} |",
         f"| Bloques argumentativos | {args_argumentativos} |",
@@ -76,7 +78,9 @@ def exportar_reporte_ejecutivo(
         "## Alertas\n",
     ]
     if rev_humana > 0:
-        lineas.append(f"- **{rev_humana} argumentos** requieren revisión humana (confianza media o baja).")
+        lineas.append(
+            f"- **{rev_humana} argumentos** requieren revisión humana (confianza media o baja)."
+        )
     if nuevos > 0:
         lineas.append(f"- **{nuevos} argumentos nuevos** no encontrados en la resolución base.")
     if probables > 0:

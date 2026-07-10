@@ -8,7 +8,7 @@ una carpeta local del usuario o se puede empaquetar manualmente.
 
 import os
 import sys
-from typing import List, Optional
+
 import numpy as np
 
 from utils.logger import obtener_logger
@@ -17,7 +17,7 @@ logger = obtener_logger()
 
 # Singleton del modelo para no recargarlo en cada llamada
 _modelo = None
-_nombre_modelo_cargado: Optional[str] = None
+_nombre_modelo_cargado: str | None = None
 
 
 def _get_cache_dir() -> str:
@@ -40,7 +40,9 @@ def cargar_modelo(nombre_modelo: str) -> None:
     if _modelo is not None and _nombre_modelo_cargado == nombre_modelo:
         return  # Ya cargado
 
-    import sys, io
+    import io
+    import sys
+
     from sentence_transformers import SentenceTransformer
 
     cache_dir = _get_cache_dir()
@@ -66,7 +68,7 @@ def cargar_modelo(nombre_modelo: str) -> None:
     logger.info("Modelo cargado correctamente.")
 
 
-def vectorizar(textos: List[str], batch_size: int = 32) -> np.ndarray:
+def vectorizar(textos: list[str], batch_size: int = 32) -> np.ndarray:
     """
     Genera embeddings para una lista de textos.
     Devuelve array numpy de shape (n_textos, dim_embedding).
@@ -78,7 +80,9 @@ def vectorizar(textos: List[str], batch_size: int = 32) -> np.ndarray:
 
     # Silenciar tqdm/progress bars para evitar el error 'NoneType has no attribute isatty'
     # que ocurre cuando se corre desde GUI sin consola adjunta.
-    import sys, io
+    import io
+    import sys
+
     _old_stdout = sys.stdout
     _old_stderr = sys.stderr
     try:

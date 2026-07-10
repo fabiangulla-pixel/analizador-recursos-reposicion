@@ -4,7 +4,7 @@ Genera la matriz principal de argumentos en formato XLSX y/o CSV.
 """
 
 import os
-from typing import List, Dict, Any
+from typing import Any
 
 import pandas as pd
 
@@ -36,31 +36,33 @@ def _resumir_texto(texto: str, max_chars: int = 200) -> str:
     return texto[:max_chars].rsplit(" ", 1)[0] + "…"
 
 
-def construir_dataframe(argumentos: List[Dict[str, Any]]) -> pd.DataFrame:
+def construir_dataframe(argumentos: list[dict[str, Any]]) -> pd.DataFrame:
     """Convierte la lista de argumentos procesados en un DataFrame."""
     filas = []
     for arg in argumentos:
-        filas.append({
-            "id_argumento": arg.get("id", ""),
-            "grupo_argumental": f"Grupo {arg.get('grupo_id', '') + 1}",
-            "tipo_argumento": "argumentativo" if arg.get("es_argumentativo") else "descriptivo",
-            "texto_resumido_argumento": _resumir_texto(arg.get("texto", "")),
-            "texto_literal_clave": arg.get("texto", "")[:500],
-            "documento_origen": arg.get("archivo", ""),
-            "recurrente": arg.get("recurrente", False),
-            "pagina_inicial": arg.get("pagina", ""),
-            "ya_resuelto_en_decision_base": arg.get("ya_resuelto_en_decision_base", ""),
-            "evidencia_resolucion_base": arg.get("evidencia_resolucion_base", "")[:300],
-            "similitud": arg.get("similitud_base", ""),
-            "confianza": arg.get("confianza", ""),
-            "requiere_revision_humana": arg.get("requiere_revision_humana", ""),
-            "observaciones": "",
-        })
+        filas.append(
+            {
+                "id_argumento": arg.get("id", ""),
+                "grupo_argumental": f"Grupo {arg.get('grupo_id', '') + 1}",
+                "tipo_argumento": "argumentativo" if arg.get("es_argumentativo") else "descriptivo",
+                "texto_resumido_argumento": _resumir_texto(arg.get("texto", "")),
+                "texto_literal_clave": arg.get("texto", "")[:500],
+                "documento_origen": arg.get("archivo", ""),
+                "recurrente": arg.get("recurrente", False),
+                "pagina_inicial": arg.get("pagina", ""),
+                "ya_resuelto_en_decision_base": arg.get("ya_resuelto_en_decision_base", ""),
+                "evidencia_resolucion_base": arg.get("evidencia_resolucion_base", "")[:300],
+                "similitud": arg.get("similitud_base", ""),
+                "confianza": arg.get("confianza", ""),
+                "requiere_revision_humana": arg.get("requiere_revision_humana", ""),
+                "observaciones": "",
+            }
+        )
     return pd.DataFrame(filas, columns=COLUMNAS)
 
 
 def exportar_matriz(
-    argumentos: List[Dict[str, Any]],
+    argumentos: list[dict[str, Any]],
     carpeta_salida: str,
     generar_xlsx: bool = True,
     generar_csv: bool = True,

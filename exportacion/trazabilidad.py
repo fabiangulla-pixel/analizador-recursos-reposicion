@@ -3,10 +3,10 @@ trazabilidad.py
 Genera el archivo de trazabilidad completo en JSON para auditoría técnica.
 """
 
-import os
 import json
-from typing import List, Dict, Any
+import os
 from datetime import datetime
+from typing import Any
 
 from utils.logger import obtener_logger
 
@@ -14,10 +14,10 @@ logger = obtener_logger()
 
 
 def exportar_trazabilidad(
-    argumentos: List[Dict[str, Any]],
-    grupos: List[Dict[str, Any]],
+    argumentos: list[dict[str, Any]],
+    grupos: list[dict[str, Any]],
     carpeta_salida: str,
-    config_usada: Dict[str, Any],
+    config_usada: dict[str, Any],
 ) -> None:
     """
     Exporta un JSON completo con todos los argumentos, grupos y la configuración
@@ -29,10 +29,13 @@ def exportar_trazabilidad(
     # Serializar argumentos (sin embeddings numpy)
     args_serializables = []
     for a in argumentos:
-        args_serializables.append({
-            k: v for k, v in a.items()
-            if k != "embedding"  # excluir arrays numpy no serializables
-        })
+        args_serializables.append(
+            {
+                k: v
+                for k, v in a.items()
+                if k != "embedding"  # excluir arrays numpy no serializables
+            }
+        )
 
     # Serializar grupos (sin centroides numpy)
     grupos_serializables = []

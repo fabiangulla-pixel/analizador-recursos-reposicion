@@ -1,0 +1,29 @@
+[project]
+name = "recursos-reposicion"
+version = "1.0.0"
+description = "Analizador de recursos de reposición: agrupa argumentos y detecta los ya resueltos en la resolución base"
+requires-python = ">=3.10"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+extend-exclude = ["venv_build", "build", "dist"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "C4", "UP", "W"]
+# Reglas ignoradas deliberadamente: exigirían cambios de comportamiento
+# en código validado con un caso real, o chocan con el estilo del proyecto.
+ignore = [
+    "E501",   # líneas largas puntuales en strings de reportes
+    "UP015",  # open(..., "r") explícito: legible, sin efecto semántico
+    "B905",   # zip(strict=) cambiaría semántica en código validado con caso real
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Scripts y tests ajustan sys.path antes de importar
+"scripts/*" = ["E402"]
+"tests/*" = ["E402"]
+"main.py" = ["E402"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -6,7 +6,7 @@ bloques con contenido argumentativo (vs encabezados, datos, etc.).
 """
 
 import re
-from typing import List, Dict, Any
+from typing import Any
 
 from utils.logger import obtener_logger
 
@@ -25,8 +25,8 @@ _INDICADORES_ARGUMENTO = re.compile(
 
 
 def segmentar_bloques(
-    bloques: List[Dict[str, Any]], min_longitud: int = 80
-) -> List[Dict[str, Any]]:
+    bloques: list[dict[str, Any]], min_longitud: int = 80
+) -> list[dict[str, Any]]:
     """
     Toma bloques crudos (un bloque = texto de una página o sección)
     y los divide en argumentos individuales por párrafo.
@@ -43,13 +43,15 @@ def segmentar_bloques(
             if len(parrafo) < min_longitud:
                 continue
             es_arg = bool(_INDICADORES_ARGUMENTO.search(parrafo))
-            argumentos.append({
-                "id": id_arg,
-                "texto": parrafo,
-                "pagina": bloque["pagina"],
-                "archivo": bloque["archivo"],
-                "es_argumentativo": es_arg,
-            })
+            argumentos.append(
+                {
+                    "id": id_arg,
+                    "texto": parrafo,
+                    "pagina": bloque["pagina"],
+                    "archivo": bloque["archivo"],
+                    "es_argumentativo": es_arg,
+                }
+            )
             id_arg += 1
 
     total = len(argumentos)
@@ -58,7 +60,7 @@ def segmentar_bloques(
     return argumentos
 
 
-def _dividir_parrafos(texto: str) -> List[str]:
+def _dividir_parrafos(texto: str) -> list[str]:
     """
     Divide un texto en párrafos por doble salto de línea o punto seguido de mayúscula
     al inicio de línea. Limpia cada párrafo.

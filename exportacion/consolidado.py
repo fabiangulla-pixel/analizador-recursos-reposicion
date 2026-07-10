@@ -3,16 +3,16 @@ consolidado.py
 Genera el consolidado por grupos argumentales en JSON y Markdown.
 """
 
-import os
 import json
-from typing import List, Dict, Any
+import os
+from typing import Any
 
 from utils.logger import obtener_logger
 
 logger = obtener_logger()
 
 
-def construir_consolidado(grupos: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def construir_consolidado(grupos: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Construye la estructura de consolidado serializable (sin numpy arrays)."""
     resultado = []
     for g in grupos:
@@ -26,24 +26,24 @@ def construir_consolidado(grupos: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             }
             for m in g.get("miembros", [])
         ]
-        resultado.append({
-            "grupo_id": g["grupo_id"],
-            "nombre": g.get("nombre_tentativo", f"Grupo {g['grupo_id'] + 1}"),
-            "n_argumentos": g["n_argumentos"],
-            "recurrente": g["recurrente"],
-            "archivos": g["archivos"],
-            "texto_representativo": g.get("texto_representativo", ""),
-            "ya_resuelto": g.get("ya_resuelto", ""),
-            "similitud_base": g.get("similitud_base", 0.0),
-            "evidencia_base": g.get("evidencia_base", ""),
-            "variantes": miembros_serializables,
-        })
+        resultado.append(
+            {
+                "grupo_id": g["grupo_id"],
+                "nombre": g.get("nombre_tentativo", f"Grupo {g['grupo_id'] + 1}"),
+                "n_argumentos": g["n_argumentos"],
+                "recurrente": g["recurrente"],
+                "archivos": g["archivos"],
+                "texto_representativo": g.get("texto_representativo", ""),
+                "ya_resuelto": g.get("ya_resuelto", ""),
+                "similitud_base": g.get("similitud_base", 0.0),
+                "evidencia_base": g.get("evidencia_base", ""),
+                "variantes": miembros_serializables,
+            }
+        )
     return resultado
 
 
-def exportar_consolidado_json(
-    grupos: List[Dict[str, Any]], carpeta_salida: str
-) -> None:
+def exportar_consolidado_json(grupos: list[dict[str, Any]], carpeta_salida: str) -> None:
     data = construir_consolidado(grupos)
     os.makedirs(carpeta_salida, exist_ok=True)
     ruta = os.path.join(carpeta_salida, "consolidado_grupos.json")
@@ -52,9 +52,7 @@ def exportar_consolidado_json(
     logger.info(f"Consolidado JSON exportado: {ruta}")
 
 
-def exportar_consolidado_markdown(
-    grupos: List[Dict[str, Any]], carpeta_salida: str
-) -> None:
+def exportar_consolidado_markdown(grupos: list[dict[str, Any]], carpeta_salida: str) -> None:
     data = construir_consolidado(grupos)
     os.makedirs(carpeta_salida, exist_ok=True)
     ruta = os.path.join(carpeta_salida, "consolidado_grupos.md")

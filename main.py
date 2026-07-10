@@ -5,8 +5,8 @@ Añade el directorio raíz al sys.path para que los imports funcionen
 tanto en modo desarrollo como empaquetado con PyInstaller.
 """
 
-import sys
 import os
+import sys
 
 # Asegurar que el directorio raíz esté en el path (necesario para PyInstaller)
 _BASE = os.path.dirname(os.path.abspath(__file__))

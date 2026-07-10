@@ -3,10 +3,12 @@ Genera el ícono .ico de la aplicación usando solo la librería estándar (tkin
 Diseño: escudo/carpeta jurídica con letras "RR" (Recursos de Reposición).
 """
 
-from PIL import Image, ImageDraw, ImageFont
 import os
 
+from PIL import Image, ImageDraw, ImageFont
+
 RUTA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icono.ico")
+
 
 def crear_icono():
     sizes = [256, 128, 64, 48, 32, 16]
@@ -28,20 +30,28 @@ def crear_icono():
         draw.rounded_rectangle(
             [margen, margen, size - margen, size - margen],
             radius=size // 6,
-            fill=(30, 80, 140),       # azul oscuro
+            fill=(30, 80, 140),  # azul oscuro
         )
         draw.rounded_rectangle(
-            [margen + size//20, margen + size//20,
-             size - margen - size//20, size - margen - size//20],
+            [
+                margen + size // 20,
+                margen + size // 20,
+                size - margen - size // 20,
+                size - margen - size // 20,
+            ],
             radius=size // 7,
-            fill=(44, 95, 138),       # azul medio
+            fill=(44, 95, 138),  # azul medio
         )
 
         # ── Línea superior dorada ─────────────────────────────────────────
         borde_y = margen + size // 8
         draw.rectangle(
-            [margen + size//10, borde_y,
-             size - margen - size//10, borde_y + max(2, size//32)],
+            [
+                margen + size // 10,
+                borde_y,
+                size - margen - size // 10,
+                borde_y + max(2, size // 32),
+            ],
             fill=(212, 175, 55),
         )
 
@@ -64,16 +74,24 @@ def crear_icono():
             ty = (size - th) // 2 - bbox[1] + size // 18
 
             # Sombra del texto
-            draw.text((tx + max(1, size//64), ty + max(1, size//64)),
-                      texto, font=font, fill=(0, 0, 0, 120))
+            draw.text(
+                (tx + max(1, size // 64), ty + max(1, size // 64)),
+                texto,
+                font=font,
+                fill=(0, 0, 0, 120),
+            )
             # Texto blanco
             draw.text((tx, ty), texto, font=font, fill=(255, 255, 255, 255))
 
         # ── Línea inferior dorada ─────────────────────────────────────────
-        borde_y2 = size - margen - size // 8 - max(2, size//32)
+        borde_y2 = size - margen - size // 8 - max(2, size // 32)
         draw.rectangle(
-            [margen + size//10, borde_y2,
-             size - margen - size//10, borde_y2 + max(2, size//32)],
+            [
+                margen + size // 10,
+                borde_y2,
+                size - margen - size // 10,
+                borde_y2 + max(2, size // 32),
+            ],
             fill=(212, 175, 55),
         )
 
@@ -87,6 +105,7 @@ def crear_icono():
         append_images=imagenes[1:],
     )
     print(f"Ícono creado: {RUTA}")
+
 
 if __name__ == "__main__":
     crear_icono()

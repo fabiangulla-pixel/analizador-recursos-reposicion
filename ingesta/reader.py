@@ -6,14 +6,14 @@ No interrumpe la ejecución si un archivo falla: registra el error y continúa.
 """
 
 import os
-from typing import List, Dict, Any
+from typing import Any
 
 from utils.logger import obtener_logger
 
 logger = obtener_logger()
 
 
-def leer_archivo(ruta: str, encoding_fallback: str = "latin-1") -> List[Dict[str, Any]]:
+def leer_archivo(ruta: str, encoding_fallback: str = "latin-1") -> list[dict[str, Any]]:
     """
     Lee un archivo y devuelve lista de bloques: [{texto, pagina, archivo}].
     Soporta .pdf, .docx, .txt.
@@ -35,7 +35,7 @@ def leer_archivo(ruta: str, encoding_fallback: str = "latin-1") -> List[Dict[str
         return []
 
 
-def _leer_pdf(ruta: str, nombre: str) -> List[Dict[str, Any]]:
+def _leer_pdf(ruta: str, nombre: str) -> list[dict[str, Any]]:
     """Lee un PDF con pdfplumber. Devuelve una entrada por página."""
     import pdfplumber
 
@@ -52,7 +52,7 @@ def _leer_pdf(ruta: str, nombre: str) -> List[Dict[str, Any]]:
     return bloques
 
 
-def _leer_docx(ruta: str, nombre: str) -> List[Dict[str, Any]]:
+def _leer_docx(ruta: str, nombre: str) -> list[dict[str, Any]]:
     """
     Lee un DOCX con python-docx.
     Estrategia: cada párrafo no vacío es un bloque individual.
@@ -73,11 +73,13 @@ def _leer_docx(ruta: str, nombre: str) -> List[Dict[str, Any]]:
         if not texto:
             # Salto de párrafo en blanco: vaciar buffer si tiene contenido sustancial
             if chars_acumulados >= 80:
-                bloques.append({
-                    "texto": " ".join(buffer_texto),
-                    "pagina": buffer_pagina,
-                    "archivo": nombre,
-                })
+                bloques.append(
+                    {
+                        "texto": " ".join(buffer_texto),
+                        "pagina": buffer_pagina,
+                        "archivo": nombre,
+                    }
+                )
                 pagina_simulada += 1
                 buffer_texto = []
                 buffer_pagina = pagina_simulada
@@ -89,11 +91,13 @@ def _leer_docx(ruta: str, nombre: str) -> List[Dict[str, Any]]:
 
         # Si el párrafo es largo o el buffer ya acumuló suficiente, emitir bloque
         if len(texto) >= 120 or chars_acumulados >= 300:
-            bloques.append({
-                "texto": " ".join(buffer_texto),
-                "pagina": buffer_pagina,
-                "archivo": nombre,
-            })
+            bloques.append(
+                {
+                    "texto": " ".join(buffer_texto),
+                    "pagina": buffer_pagina,
+                    "archivo": nombre,
+                }
+            )
             pagina_simulada += 1
             buffer_texto = []
             buffer_pagina = pagina_simulada
@@ -101,18 +105,20 @@ def _leer_docx(ruta: str, nombre: str) -> List[Dict[str, Any]]:
 
     # Vaciar lo que quede
     if buffer_texto and chars_acumulados >= 40:
-        bloques.append({
-            "texto": " ".join(buffer_texto),
-            "pagina": buffer_pagina,
-            "archivo": nombre,
-        })
+        bloques.append(
+            {
+                "texto": " ".join(buffer_texto),
+                "pagina": buffer_pagina,
+                "archivo": nombre,
+            }
+        )
 
     if not bloques:
         logger.warning(f"{nombre}: no se extrajo ningún bloque del DOCX.")
     return bloques
 
 
-def _leer_txt(ruta: str, nombre: str, encoding_fallback: str) -> List[Dict[str, Any]]:
+def _leer_txt(ruta: str, nombre: str, encoding_fallback: str) -> list[dict[str, Any]]:
     """Lee un TXT. Divide por saltos de línea dobles como bloques."""
     for enc in ["utf-8", encoding_fallback]:
         try:
@@ -134,9 +140,9 @@ def _leer_txt(ruta: str, nombre: str, encoding_fallback: str) -> List[Dict[str, 
 
 def leer_carpeta(
     carpeta: str,
-    extensiones: List[str],
+    extensiones: list[str],
     encoding_fallback: str = "latin-1",
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Lee todos los archivos soportados en una carpeta.
     Devuelve lista plana de bloques de todos los documentos.
@@ -146,10 +152,7 @@ def leer_carpeta(
         logger.error(f"La carpeta no existe: {carpeta}")
         return todos
 
-    archivos = [
-        f for f in os.listdir(carpeta)
-        if os.path.splitext(f)[1].lower() in extensiones
-    ]
+    archivos = [f for f in os.listdir(carpeta) if os.path.splitext(f)[1].lower() in extensiones]
     if not archivos:
         logger.warning(f"No se encontraron archivos soportados en: {carpeta}")
         return todos

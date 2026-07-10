@@ -7,6 +7,7 @@ minutos la primera vez por la descarga del modelo).
 
 Uso:  venv_build\\Scripts\\python.exe scripts\\e2e_pipeline.py
 """
+
 import os
 import sys
 

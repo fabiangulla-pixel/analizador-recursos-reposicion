@@ -10,10 +10,8 @@ import sys
 import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, scrolledtext, ttk
-from typing import Optional
 
 from app.pipeline import ejecutar_analisis
-
 
 # ── Colores y fuentes ────────────────────────────────────────────────────────
 COLOR_FONDO = "#F5F5F5"
@@ -38,9 +36,9 @@ class AplicacionRecursos(tk.Tk):
         self.configure(bg=COLOR_FONDO)
         self.minsize(680, 580)
 
-        self._ruta_base: Optional[str] = None
-        self._carpeta_recursos: Optional[str] = None
-        self._carpeta_salida: Optional[str] = None
+        self._ruta_base: str | None = None
+        self._carpeta_recursos: str | None = None
+        self._carpeta_salida: str | None = None
         self._analizando = False
 
         self._construir_ui()
@@ -66,9 +64,13 @@ class AplicacionRecursos(tk.Tk):
 
         # ── Sección de entradas ──
         frame_inputs = tk.LabelFrame(
-            main, text="  Archivos de entrada  ",
-            bg=COLOR_FONDO, font=FUENTE_LABEL, fg=COLOR_ACENTO,
-            padx=10, pady=10,
+            main,
+            text="  Archivos de entrada  ",
+            bg=COLOR_FONDO,
+            font=FUENTE_LABEL,
+            fg=COLOR_ACENTO,
+            padx=10,
+            pady=10,
         )
         frame_inputs.pack(fill="x", pady=(0, 10))
 
@@ -103,7 +105,10 @@ class AplicacionRecursos(tk.Tk):
         self._lbl_estado = tk.Label(
             frame_progreso,
             text="Listo. Seleccione los archivos y presione Ejecutar análisis.",
-            font=FUENTE_LABEL, bg=COLOR_FONDO, fg="#555555", anchor="w",
+            font=FUENTE_LABEL,
+            bg=COLOR_FONDO,
+            fg="#555555",
+            anchor="w",
         )
         self._lbl_estado.pack(fill="x")
 
@@ -121,9 +126,13 @@ class AplicacionRecursos(tk.Tk):
             frame_botones,
             text="▶  Ejecutar análisis",
             font=FUENTE_BOTON,
-            bg=COLOR_BOTON, fg=COLOR_BOTON_TEXTO,
-            activebackground="#1A4A6E", activeforeground="white",
-            relief="flat", padx=18, pady=8,
+            bg=COLOR_BOTON,
+            fg=COLOR_BOTON_TEXTO,
+            activebackground="#1A4A6E",
+            activeforeground="white",
+            relief="flat",
+            padx=18,
+            pady=8,
             cursor="hand2",
             command=self._iniciar_analisis,
         )
@@ -133,9 +142,13 @@ class AplicacionRecursos(tk.Tk):
             frame_botones,
             text="📂  Abrir resultados",
             font=FUENTE_BOTON,
-            bg="#555555", fg="white",
-            activebackground="#333333", activeforeground="white",
-            relief="flat", padx=18, pady=8,
+            bg="#555555",
+            fg="white",
+            activebackground="#333333",
+            activeforeground="white",
+            relief="flat",
+            padx=18,
+            pady=8,
             cursor="hand2",
             state="disabled",
             command=self._abrir_carpeta_salida,
@@ -144,16 +157,21 @@ class AplicacionRecursos(tk.Tk):
 
         # ── Log / estado detallado ──
         frame_log = tk.LabelFrame(
-            main, text="  Registro de actividad  ",
-            bg=COLOR_FONDO, font=FUENTE_LABEL, fg=COLOR_ACENTO,
-            padx=10, pady=8,
+            main,
+            text="  Registro de actividad  ",
+            bg=COLOR_FONDO,
+            font=FUENTE_LABEL,
+            fg=COLOR_ACENTO,
+            padx=10,
+            pady=8,
         )
         frame_log.pack(fill="both", expand=True)
 
         self._area_log = scrolledtext.ScrolledText(
             frame_log,
             font=FUENTE_LOG,
-            bg="#1E1E1E", fg="#D4D4D4",
+            bg="#1E1E1E",
+            fg="#D4D4D4",
             insertbackground="white",
             relief="flat",
             state="disabled",
@@ -164,9 +182,7 @@ class AplicacionRecursos(tk.Tk):
         self._area_log.tag_config("ok", foreground="#69DB7C")
         self._area_log.tag_config("info", foreground="#74C0FC")
 
-    def _fila_selector(
-        self, parent, etiqueta, tooltip, comando, fila, es_carpeta=False
-    ):
+    def _fila_selector(self, parent, etiqueta, tooltip, comando, fila, es_carpeta=False):
         """Crea una fila de: etiqueta + campo de texto + botón seleccionar."""
         lbl = tk.Label(parent, text=etiqueta, font=FUENTE_LABEL, bg=COLOR_FONDO, anchor="w")
         lbl.grid(row=fila * 2, column=0, columnspan=3, sticky="w", pady=(6, 0))
@@ -179,8 +195,11 @@ class AplicacionRecursos(tk.Tk):
             parent,
             text=f"{icono} Seleccionar",
             font=FUENTE_LABEL,
-            bg="#E0E0E0", fg="#333333",
-            relief="flat", padx=10, pady=4,
+            bg="#E0E0E0",
+            fg="#333333",
+            relief="flat",
+            padx=10,
+            pady=4,
             cursor="hand2",
             command=comando,
         )
@@ -232,7 +251,9 @@ class AplicacionRecursos(tk.Tk):
             messagebox.showerror("Falta archivo", "Seleccione el archivo de la resolución base.")
             return
         if not self._carpeta_recursos or not os.path.isdir(self._carpeta_recursos):
-            messagebox.showerror("Falta carpeta", "Seleccione la carpeta de recursos de reposición.")
+            messagebox.showerror(
+                "Falta carpeta", "Seleccione la carpeta de recursos de reposición."
+            )
             return
         if not self._carpeta_salida:
             messagebox.showerror("Falta carpeta", "Seleccione la carpeta de resultados.")
@@ -305,6 +326,7 @@ class AplicacionRecursos(tk.Tk):
                 os.startfile(self._carpeta_salida)
             else:
                 import subprocess
+
                 subprocess.Popen(["xdg-open", self._carpeta_salida])
 
     # ── Utilidades de UI ─────────────────────────────────────────────────────

@@ -4,16 +4,17 @@ Compara cada argumento/grupo contra la resolución sancionatoria base
 para determinar si ya fue resuelto, probablemente resuelto, o es nuevo.
 """
 
-import numpy as np
-from typing import List, Dict, Any, Tuple
+from typing import Any
 
-from procesamiento.vectorizador import vectorizar, similitud_coseno
+import numpy as np
+
+from procesamiento.vectorizador import vectorizar
 from utils.logger import obtener_logger
 
 logger = obtener_logger()
 
 
-def _clasificar_resolucion(similitud: float, umbral: float) -> Tuple[str, str, bool]:
+def _clasificar_resolucion(similitud: float, umbral: float) -> tuple[str, str, bool]:
     """
     Clasifica el estado de resolución de un argumento.
 
@@ -29,11 +30,11 @@ def _clasificar_resolucion(similitud: float, umbral: float) -> Tuple[str, str, b
 
 
 def comparar_con_base(
-    argumentos: List[Dict[str, Any]],
+    argumentos: list[dict[str, Any]],
     embeddings_args: np.ndarray,
-    bloques_base: List[Dict[str, Any]],
+    bloques_base: list[dict[str, Any]],
     umbral_resuelto: float = 0.70,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Para cada argumento, busca el fragmento más similar en la resolución base
     y determina si ya fue resuelto.
@@ -48,13 +49,15 @@ def comparar_con_base(
     if not bloques_base:
         logger.warning("No hay bloques de la resolución base. No se puede comparar.")
         for arg in argumentos:
-            arg.update({
-                "similitud_base": 0.0,
-                "ya_resuelto_en_decision_base": "NO",
-                "evidencia_resolucion_base": "",
-                "confianza": "baja",
-                "requiere_revision_humana": True,
-            })
+            arg.update(
+                {
+                    "similitud_base": 0.0,
+                    "ya_resuelto_en_decision_base": "NO",
+                    "evidencia_resolucion_base": "",
+                    "confianza": "baja",
+                    "requiere_revision_humana": True,
+                }
+            )
         return argumentos
 
     textos_base = [b["texto"] for b in bloques_base]
@@ -91,10 +94,10 @@ def comparar_con_base(
 
 
 def comparar_grupos_con_base(
-    grupos: List[Dict[str, Any]],
-    bloques_base: List[Dict[str, Any]],
+    grupos: list[dict[str, Any]],
+    bloques_base: list[dict[str, Any]],
     umbral_resuelto: float = 0.70,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Compara cada grupo argumental (usando su centroide) contra la base.
     Añade estado de resolución al grupo.

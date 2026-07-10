@@ -4,16 +4,14 @@ Genera una propuesta de índice para la decisión final en formato Markdown.
 """
 
 import os
-from typing import List, Dict, Any
+from typing import Any
 
 from utils.logger import obtener_logger
 
 logger = obtener_logger()
 
 
-def exportar_indice_decision(
-    grupos: List[Dict[str, Any]], carpeta_salida: str
-) -> None:
+def exportar_indice_decision(grupos: list[dict[str, Any]], carpeta_salida: str) -> None:
     """
     Genera un índice sugerido para redactar la decisión final,
     organizando los grupos por estado de resolución.
@@ -54,7 +52,9 @@ def exportar_indice_decision(
     if probables:
         for i, g in enumerate(probables, start=1):
             nombre = g.get("nombre_tentativo", f"Grupo {g['grupo_id'] + 1}")
-            lineas.append(f"{i}. **{nombre}** — similitud con base: {g.get('similitud_base', 0):.2%}")
+            lineas.append(
+                f"{i}. **{nombre}** — similitud con base: {g.get('similitud_base', 0):.2%}"
+            )
             lineas.append(f"   - Evidencia: _{g.get('evidencia_base', '')[:200]}_\n")
     else:
         lineas.append("_(Ninguno en esta categoría)_\n")
