@@ -25,6 +25,13 @@ def test_matriz_dataframe_columnas_y_contenido(argumentos_procesados):
     assert df.loc[1, "requiere_revision_humana"]
 
 
+def test_matriz_incluye_citas_normativas(argumentos_procesados):
+    argumentos_procesados[0]["citas_normativas"] = ["Ley 1437 de 2011, art. 76", "CPACA"]
+    df = construir_dataframe(argumentos_procesados)
+    assert df.loc[0, "citas_normativas"] == "Ley 1437 de 2011, art. 76; CPACA"
+    assert df.loc[1, "citas_normativas"] == ""  # sin campo → celda vacía
+
+
 def test_exportar_matriz_genera_xlsx_y_csv(argumentos_procesados, tmp_path):
     exportar_matriz(argumentos_procesados, str(tmp_path), True, True)
     xlsx = tmp_path / "matriz_argumentos.xlsx"

@@ -19,6 +19,7 @@ from exportacion.word_export import exportar_informe_word
 from ingesta.cleaner import limpiar_bloques
 from ingesta.reader import leer_archivo, leer_carpeta
 from procesamiento.agrupador import agrupar_argumentos, construir_grupos
+from procesamiento.citas_normativas import anotar_citas
 from procesamiento.comparador import comparar_con_base, comparar_grupos_con_base
 from procesamiento.segmentador import segmentar_bloques
 from procesamiento.vectorizador import cargar_modelo, vectorizar
@@ -87,6 +88,9 @@ def ejecutar_analisis(
         argumentos = segmentar_bloques(bloques_recursos, min_lon)
         if not argumentos:
             return {"error": "No se encontraron argumentos en los recursos. Revisa los archivos."}
+
+        progreso("Extrayendo citas normativas...", 35)
+        argumentos = anotar_citas(argumentos)
 
         # ── 4. Cargar modelo y vectorizar ───────────────────────────────────
         progreso("Cargando modelo de lenguaje (primera vez puede tardar)...", 40)
