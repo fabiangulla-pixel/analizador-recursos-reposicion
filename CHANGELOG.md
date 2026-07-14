@@ -2,6 +2,28 @@
 
 Todas las novedades relevantes del proyecto, de la más reciente a la más antigua.
 
+## [1.2.0] — 2026-07-12 · Primer producto de la Suite Legal
+
+Este proyecto pasa a ser "P1 — Analizador PRO" de una suite comercial más
+amplia (ver `C:\Users\Lenovo\suite-legal\PLAN_SUITE_LEGAL.md`). Nuevas
+funciones del roadmap de prioridad 1:
+
+### Añadido
+- **Extractor de citas normativas colombianas** (`procesamiento/citas_normativas.py`):
+  leyes, decretos, resoluciones, sentencias C-/T-/SU-, códigos por sigla
+  (CPACA, CGP...) y Constitución Política. Columna `citas_normativas` nueva
+  en la matriz de argumentos. Inspirado en el diseño de eyecite (Free Law
+  Project), adaptado al derecho colombiano. 11 tests.
+- **Calendario de días hábiles colombiano y verificación de oportunidad**
+  (`procesamiento/terminos_procesales.py`): festivos completos (Ley 51/1983 +
+  tabla de festivos ad hoc creados por ley, verificados contra fuente oficial
+  para 2026 — incluye el nuevo festivo del 13 de julio, Ley 2578 de 2026),
+  `evaluar_oportunidad()` para el término de 10 días hábiles del CPACA art. 76.
+  Módulo independiente, listo para invocarse desde la GUI con fechas
+  confirmadas por el abogado (no se extraen automáticamente del texto — ver
+  ROADMAP para el porqué). 10 tests. Núcleo directo del futuro producto P3
+  (calculadora de términos procesales standalone).
+
 ## [1.1.0] — 2026-07-10 · Pase de calidad (Modo-Ingeniero)
 
 Sin cambios de comportamiento en el pipeline validado, salvo una mejora de

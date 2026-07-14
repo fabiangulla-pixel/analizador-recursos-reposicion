@@ -18,15 +18,24 @@ el abogado decide — la herramienta organiza y evidencia.**
 
 ## Prioridad 1 — Alto valor, bajo riesgo, offline
 
-1. **Extractor de citas normativas colombianas** (inspirado en eyecite, regex local):
-   detectar `Ley 1437 de 2011, art. 76`, `Decreto`, `Resolución`, `Sentencia C-123/2020`,
-   `T-`, `SU-`, CPACA, y añadir columnas `normas_citadas` / `jurisprudencia_citada`
-   a la matriz. El abogado vería de un vistazo el fundamento de cada argumento y
-   podría agrupar por fundamento jurídico, no solo por similitud semántica.
-2. **Verificación de oportunidad del recurso**: extraer fechas (notificación de la
-   resolución vs. radicación del recurso), calcular días hábiles (festivos de
-   Colombia) y alertar si el recurso parece extemporáneo (CPACA art. 76: 10 días).
-   Es lo primero que revisa un abogado y es puro cálculo local.
+1. ✅ **Extractor de citas normativas colombianas** — HECHO (12-jul-2026,
+   `procesamiento/citas_normativas.py`, commit `f3aaa35`). Leyes, decretos,
+   resoluciones, sentencias C-/T-/SU-, códigos por sigla, Constitución.
+   Integrado a la matriz (columna `citas_normativas`).
+2. ✅ **Calendario de días hábiles y verificación de oportunidad** — HECHO
+   (12-jul-2026, `procesamiento/terminos_procesales.py`). Festivos colombianos
+   completos (Ley 51/1983 + festivos ad hoc por ley, verificados contra fuente
+   oficial 2026), `evaluar_oportunidad()` para CPACA art. 76 (10 días hábiles).
+   **Decisión de diseño**: NO se integró extracción automática de fechas desde
+   el texto del expediente — identificar cuál fecha es "notificación" y cuál es
+   "radicación" en un PDF libre es poco confiable y una fecha mal identificada
+   podría hacer que la herramienta declare "oportuno" un recurso que no lo es
+   (playbook: nunca fabricar un dato incierto en una pieza que el abogado usará
+   para decidir). v1 queda como función lista para invocar manualmente desde la
+   GUI (el abogado confirma las dos fechas) — ver ítem 2bis. También es el
+   núcleo directo de **P3** como calculadora standalone.
+   - [ ] 2bis: wire a la GUI — dos campos de fecha + botón "verificar oportunidad".
+   - [ ] Revisar `_FESTIVOS_AD_HOC` cada enero (el Congreso puede añadir festivos).
 3. **OCR de respaldo para PDFs escaneados**: hoy `reader.py` solo advierte
    "página sin texto extraíble". Integrar Tesseract (ya dominado en Bashkar
    Station) para que los recursos escaneados no queden por fuera del análisis.
