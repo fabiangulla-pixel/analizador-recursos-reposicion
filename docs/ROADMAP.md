@@ -45,9 +45,20 @@ el abogado decide — la herramienta organiza y evidencia.**
    marcado `fuente: "nativo"` u `"ocr"` (columna `fuente_texto` en la matriz)
    para que el abogado sepa qué texto puede tener errores de reconocimiento.
    Se degrada sin romper el pipeline si Tesseract no está instalado.
-4. **PDF anotado por argumento**: generar copia del recurso con cada argumento
-   resaltado y numerado con su grupo (estándar ya usado en /verificar-creditos).
-   El abogado navega el expediente original con el mapa de argumentos encima.
+4. ✅ **PDF anotado por argumento** — HECHO (12-jul-2026,
+   `exportacion/pdf_anotado.py`). Genera `recursos_anotados/anotado_<archivo>.pdf`
+   por cada recurso en PDF: resalta el inicio de cada argumento (color verde/
+   naranja/rojo según si ya fue resuelto en la base, mismo esquema que el
+   informe Word) con comentario de grupo y similitud — mismo mecanismo
+   Highlight+comentario que la skill /verificar-creditos. Verificado
+   renderizando el PDF de salida (no solo contando anotaciones por script).
+   **Limitación honesta y documentada**: solo funciona sobre argumentos
+   `fuente: "nativo"` — las páginas que vinieron de OCR de respaldo no tienen
+   capa de texto seleccionable en el PDF original, así que no hay nada que
+   resaltar ahí (se cuentan aparte como `omitidos_por_ocr`, no se ocultan).
+   Documentos .docx/.txt no se anotan (mecanismo distinto, fuera de alcance).
+
+   **Prioridad 1 del roadmap original: COMPLETA** (los 4 ítems).
 
 ## Prioridad 2 — Valor alto, esfuerzo medio
 

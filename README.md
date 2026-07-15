@@ -71,6 +71,11 @@ Los usuarios finales solo deben descomprimir y hacer doble clic en `AnalizadorRe
 | `informe_analisis.docx` | Informe completo en Word con formato |
 | `trazabilidad.json` | JSON completo para auditoría |
 | `analisis.log` | Log técnico del proceso |
+| `recursos_anotados/anotado_<archivo>.pdf` | Copia de cada recurso PDF con los argumentos resaltados por color (verde=ya resuelto, naranja=probablemente, rojo=nuevo) y comentados con su grupo. Solo para recursos en PDF con texto nativo. |
+
+La matriz de argumentos también incluye `citas_normativas` (leyes, decretos,
+sentencias citadas en cada argumento) y `fuente_texto` (`nativo` u `ocr`, para
+saber qué texto viene de reconocimiento óptico y puede tener errores).
 
 ---
 

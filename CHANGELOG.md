@@ -30,6 +30,16 @@ funciones del roadmap de prioridad 1:
   `fuente: "nativo"` u `"ocr"`, propagado hasta la columna `fuente_texto` de
   la matriz — transparencia sobre qué texto puede tener errores de OCR.
   15 tests (6 unitarios con mocks + 1 con Tesseract real de punta a punta).
+- **PDF anotado por argumento** (`exportacion/pdf_anotado.py`): genera
+  `recursos_anotados/anotado_<archivo>.pdf` por cada recurso PDF, con cada
+  argumento resaltado (verde/naranja/rojo según su resolución) y un
+  comentario con su grupo y similitud — mismo mecanismo que la skill
+  /verificar-creditos. Solo aplica a argumentos con texto nativo (no a los
+  recuperados por OCR, que no tienen capa de texto en el PDF original).
+  Nuevo paso del pipeline al 99%. 9 tests, verificado además renderizando
+  visualmente un caso realista (no solo contando anotaciones por script).
+
+Con esto se completan los 4 ítems de prioridad 1 del roadmap de P1.
 
 ## [1.1.0] — 2026-07-10 · Pase de calidad (Modo-Ingeniero)
 

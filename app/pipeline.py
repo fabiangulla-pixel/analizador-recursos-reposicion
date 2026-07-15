@@ -13,6 +13,7 @@ from app.config_loader import cargar_config
 from exportacion.consolidado import exportar_consolidado_json, exportar_consolidado_markdown
 from exportacion.indice import exportar_indice_decision
 from exportacion.matriz import exportar_matriz
+from exportacion.pdf_anotado import generar_pdfs_anotados
 from exportacion.reporte import exportar_reporte_ejecutivo
 from exportacion.trazabilidad import exportar_trazabilidad
 from exportacion.word_export import exportar_informe_word
@@ -137,6 +138,9 @@ def ejecutar_analisis(
         progreso("Generando informe Word...", 97)
         exportar_informe_word(argumentos, grupos, carpeta_salida)
 
+        progreso("Generando PDFs anotados...", 99)
+        pdfs_anotados = generar_pdfs_anotados(argumentos, carpeta_recursos, carpeta_salida)
+
         progreso("¡Análisis completado!", 100)
         log.info("=== Análisis completado exitosamente ===")
 
@@ -145,6 +149,7 @@ def ejecutar_analisis(
             "total_argumentos": len(argumentos),
             "total_grupos": len(grupos),
             "carpeta_salida": carpeta_salida,
+            "pdfs_anotados": pdfs_anotados,
         }
 
     except Exception as e:
