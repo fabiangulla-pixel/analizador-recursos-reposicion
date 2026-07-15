@@ -45,6 +45,17 @@ def test_conserva_pagina_y_archivo():
     assert args[0]["archivo"] == "r.docx"
 
 
+def test_fuente_por_defecto_es_nativo():
+    args = segmentar_bloques([_bloque(TEXTO_ARGUMENTATIVO)], min_longitud=80)
+    assert args[0]["fuente"] == "nativo"
+
+
+def test_fuente_ocr_se_propaga_desde_el_bloque():
+    bloque = {**_bloque(TEXTO_ARGUMENTATIVO), "fuente": "ocr"}
+    args = segmentar_bloques([bloque], min_longitud=80)
+    assert args[0]["fuente"] == "ocr"
+
+
 def test_dividir_parrafos_colapsa_saltos_simples():
     partes = _dividir_parrafos("línea uno\nlínea dos\n\nsegundo párrafo")
     assert partes == ["línea uno línea dos", "segundo párrafo"]

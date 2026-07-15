@@ -23,6 +23,13 @@ funciones del roadmap de prioridad 1:
   confirmadas por el abogado (no se extraen automáticamente del texto — ver
   ROADMAP para el porqué). 10 tests. Núcleo directo del futuro producto P3
   (calculadora de términos procesales standalone).
+- **OCR de respaldo para PDFs escaneados** (`ingesta/ocr_respaldo.py`):
+  cuando una página no tiene texto embebido, se renderiza con PyMuPDF y se
+  reconoce con Tesseract (mismo patrón de localización de binario y de
+  `TESSDATA_PREFIX` que Bashkar Station). Cada bloque queda marcado
+  `fuente: "nativo"` u `"ocr"`, propagado hasta la columna `fuente_texto` de
+  la matriz — transparencia sobre qué texto puede tener errores de OCR.
+  15 tests (6 unitarios con mocks + 1 con Tesseract real de punta a punta).
 
 ## [1.1.0] — 2026-07-10 · Pase de calidad (Modo-Ingeniero)
 

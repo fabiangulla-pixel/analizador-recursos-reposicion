@@ -8,6 +8,7 @@ No interrumpe la ejecución si un archivo falla: registra el error y continúa.
 import os
 from typing import Any
 
+from ingesta.ocr_respaldo import ocr_disponible, ocr_pagina_pdf
 from utils.logger import obtener_logger
 
 logger = obtener_logger()
@@ -36,17 +37,40 @@ def leer_archivo(ruta: str, encoding_fallback: str = "latin-1") -> list[dict[str
 
 
 def _leer_pdf(ruta: str, nombre: str) -> list[dict[str, Any]]:
-    """Lee un PDF con pdfplumber. Devuelve una entrada por página."""
+    """
+    Lee un PDF con pdfplumber. Devuelve una entrada por página.
+    Si una página no tiene texto embebido (probable escaneo), intenta OCR de
+    respaldo con Tesseract; los bloques que vienen de OCR quedan marcados con
+    'fuente': 'ocr' para que el abogado sepa que ese texto puede tener errores
+    de reconocimiento (a diferencia del texto nativo del PDF).
+    """
     import pdfplumber
 
+    hay_ocr = ocr_disponible()
     bloques = []
     with pdfplumber.open(ruta) as pdf:
         for i, pagina in enumerate(pdf.pages, start=1):
             texto = pagina.extract_text() or ""
             if texto.strip():
-                bloques.append({"texto": texto, "pagina": i, "archivo": nombre})
+                bloques.append({"texto": texto, "pagina": i, "archivo": nombre, "fuente": "nativo"})
+                continue
+
+            if not hay_ocr:
+                logger.warning(
+                    f"{nombre} – página {i} sin texto extraíble (puede ser imagen) "
+                    "y Tesseract no está instalado: página omitida."
+                )
+                continue
+
+            texto_ocr = ocr_pagina_pdf(ruta, i)
+            if texto_ocr.strip():
+                logger.info(f"{nombre} – página {i}: texto recuperado por OCR de respaldo.")
+                bloques.append(
+                    {"texto": texto_ocr, "pagina": i, "archivo": nombre, "fuente": "ocr"}
+                )
             else:
-                logger.warning(f"{nombre} – página {i} sin texto extraíble (puede ser imagen).")
+                logger.warning(f"{nombre} – página {i}: OCR de respaldo no encontró texto.")
+
     if not bloques:
         logger.warning(f"{nombre}: no se pudo extraer texto de ninguna página.")
     return bloques

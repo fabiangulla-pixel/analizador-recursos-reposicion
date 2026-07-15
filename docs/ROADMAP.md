@@ -36,9 +36,15 @@ el abogado decide — la herramienta organiza y evidencia.**
    núcleo directo de **P3** como calculadora standalone.
    - [ ] 2bis: wire a la GUI — dos campos de fecha + botón "verificar oportunidad".
    - [ ] Revisar `_FESTIVOS_AD_HOC` cada enero (el Congreso puede añadir festivos).
-3. **OCR de respaldo para PDFs escaneados**: hoy `reader.py` solo advierte
-   "página sin texto extraíble". Integrar Tesseract (ya dominado en Bashkar
-   Station) para que los recursos escaneados no queden por fuera del análisis.
+3. ✅ **OCR de respaldo para PDFs escaneados** — HECHO (12-jul-2026,
+   `ingesta/ocr_respaldo.py`). Cuando una página de PDF no tiene texto
+   embebido, se renderiza con PyMuPDF y se le aplica Tesseract (mismo patrón
+   de localización que Bashkar Station: PATH → caché → Program Files, más
+   `TESSDATA_PREFIX` apuntando a `C:\Users\Lenovo\tessdata` porque el
+   instalador de Windows no trae `spa.traineddata`). Cada bloque queda
+   marcado `fuente: "nativo"` u `"ocr"` (columna `fuente_texto` en la matriz)
+   para que el abogado sepa qué texto puede tener errores de reconocimiento.
+   Se degrada sin romper el pipeline si Tesseract no está instalado.
 4. **PDF anotado por argumento**: generar copia del recurso con cada argumento
    resaltado y numerado con su grupo (estándar ya usado en /verificar-creditos).
    El abogado navega el expediente original con el mapa de argumentos encima.

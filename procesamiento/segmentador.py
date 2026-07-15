@@ -50,6 +50,7 @@ def segmentar_bloques(
                     "pagina": bloque["pagina"],
                     "archivo": bloque["archivo"],
                     "es_argumentativo": es_arg,
+                    "fuente": bloque.get("fuente", "nativo"),
                 }
             )
             id_arg += 1

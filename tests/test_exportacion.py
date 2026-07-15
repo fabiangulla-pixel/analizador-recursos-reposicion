@@ -32,6 +32,13 @@ def test_matriz_incluye_citas_normativas(argumentos_procesados):
     assert df.loc[1, "citas_normativas"] == ""  # sin campo → celda vacía
 
 
+def test_matriz_incluye_fuente_texto_con_default_nativo(argumentos_procesados):
+    argumentos_procesados[0]["fuente"] = "ocr"
+    df = construir_dataframe(argumentos_procesados)
+    assert df.loc[0, "fuente_texto"] == "ocr"
+    assert df.loc[1, "fuente_texto"] == "nativo"  # sin campo → default nativo
+
+
 def test_exportar_matriz_genera_xlsx_y_csv(argumentos_procesados, tmp_path):
     exportar_matriz(argumentos_procesados, str(tmp_path), True, True)
     xlsx = tmp_path / "matriz_argumentos.xlsx"
