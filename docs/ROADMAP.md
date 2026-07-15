@@ -62,18 +62,38 @@ el abogado decide — la herramienta organiza y evidencia.**
 
 ## Prioridad 2 — Valor alto, esfuerzo medio
 
-5. **Borrador de proyecto de decisión en Word**: hoy se exporta una propuesta de
-   índice; el salto es generar el esqueleto completo del acto administrativo con
-   una sección por grupo argumental, la evidencia de la resolución base citada
-   textualmente y espacios `[PENDIENTE: respuesta del funcionario]`. Sin IA
-   generativa: puro ensamblaje de lo ya extraído.
-6. **Clasificación del tipo de argumento por taxonomía jurídica** (debido proceso,
-   caducidad/prescripción, falta de competencia, proporcionalidad de la sanción,
-   valoración probatoria…): similitud de embeddings contra descripciones curadas
-   de cada categoría — sin modelo nuevo, sin entrenamiento.
-7. **HDBSCAN como método de clustering alternativo** (paper de Key Point Analysis):
-   no exige fijar `umbral_distancia` y maneja mejor grupos de densidad distinta.
-   Añadir como opción en `config.yaml`, comparar con el caso real 20016795.
+5. ✅ **Borrador de proyecto de decisión en Word** — HECHO (12-jul-2026,
+   `exportacion/borrador_decision.py`, commit `5613eb4`). Genera
+   `borrador_decision.docx`: esqueleto real del acto administrativo
+   (encabezado, CONSIDERANDO numerado por grupo con evidencia citada
+   textualmente, RESUELVE con artículos), no solo un índice. Grupos nuevos
+   primero (mayor prioridad de redacción). Todo dato que solo el funcionario
+   conoce queda como `[PENDIENTE: ...]` explícito — sin IA generativa, puro
+   ensamblaje de lo ya extraído.
+6. ✅ **Clasificación del tipo de argumento por taxonomía jurídica** — HECHO
+   (12-jul-2026, `procesamiento/taxonomia.py`, commit `e150064`). 7
+   categorías curadas (debido proceso, caducidad/prescripción, falta de
+   competencia, proporcionalidad de la sanción, valoración probatoria,
+   nulidad por vicios de forma, falsa motivación), similitud de embeddings
+   contra descripciones curadas — sin modelo nuevo, sin entrenamiento.
+   Calibrado con el modelo real: 7/7 categorías correctas sobre ejemplos
+   jurídicos reales (similitud 0.58–0.78), umbral 0.30 con margen amplio
+   frente a texto irrelevante (similitud -0.09).
+7. ✅ **HDBSCAN como método de clustering alternativo** — HECHO (12-jul-2026,
+   `procesamiento/agrupador.py::_clustering_hdbscan`). Disponible como
+   `metodo_clustering: "hdbscan"` en `config.yaml`; ya no requiere paquete
+   externo (`sklearn.cluster.HDBSCAN` desde scikit-learn 1.3, ya cubierto por
+   `requirements.txt`). Reasigna el ruido (-1) a grupos individuales en vez
+   de fusionarlo bajo una etiqueta común.
+   **Hallazgo honesto de calibración**: con `min_cluster_size=2` (necesario
+   para no perder grupos recurrentes de solo 2 documentos, que es el valor
+   central de esta herramienta), HDBSCAN es notablemente menos estable que
+   agglomerative en las muestras pequeñas típicas de este dominio (decenas
+   de bloques argumentativos): en pruebas con nubes sintéticas bien
+   separadas, solo 7/10 semillas produjeron la agrupación limpia esperada
+   (las otras fragmentaron una nube densa en sub-grupos espurios). Por eso
+   sigue siendo una alternativa opcional, no el método por defecto — falta
+   comparar directamente con el caso real 20016795 antes de recomendarlo.
 8. **Gestión de expedientes**: hoy cada análisis es una carpeta suelta; una vista
    "expediente" (base + recursos + resultados + fecha) permitiría reabrir y
    comparar análisis. SQLite local, como en otros proyectos de la casa.

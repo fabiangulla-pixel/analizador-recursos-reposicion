@@ -27,7 +27,9 @@ def agrupar_argumentos(
         argumentos: Lista de dicts de argumentos.
         embeddings: Array numpy (n_args, dim).
         umbral_distancia: Distancia máxima para agrupar (1 - similitud).
-        metodo: "agglomerative" (recomendado) o "kmeans".
+            Solo aplica a "agglomerative"; "hdbscan" no lo necesita (encuentra
+            el número de grupos por densidad) y "kmeans" tampoco lo usa.
+        metodo: "agglomerative" (recomendado), "kmeans" o "hdbscan".
 
     Returns:
         Lista de argumentos con campo 'grupo_id' añadido.
@@ -80,6 +82,9 @@ def _clustering(
     if len(X) < 2:
         return np.zeros(len(X), dtype=int)
 
+    if metodo == "hdbscan":
+        return _clustering_hdbscan(X)
+
     # Agglomerative con distancia coseno
     try:
         modelo = AgglomerativeClustering(
@@ -95,6 +100,33 @@ def _clustering(
 
         obtener_logger().warning(f"Clustering falló ({e}), asignando grupos individuales.")
         return np.arange(len(X), dtype=int)
+
+
+def _clustering_hdbscan(X: np.ndarray) -> np.ndarray:
+    """
+    Clustering por densidad (HDBSCAN): no exige fijar un umbral de distancia
+    fijo de antemano y maneja mejor grupos de tamaño/densidad muy distinta
+    que agglomerative. Requiere sklearn >= 1.3 (ya cubierto por
+    requirements.txt: scikit-learn>=1.4.0).
+
+    HDBSCAN marca los puntos que no encajan en ningún grupo denso con la
+    etiqueta -1 ("ruido"). Aquí cada punto de ruido se reasigna a su propio
+    grupo individual (en vez de dejarlos todos fusionados bajo una etiqueta
+    -1 común, que los mezclaría como si fueran un solo grupo temático
+    cuando en realidad no tienen nada en común entre sí).
+    """
+    from sklearn.cluster import HDBSCAN
+
+    min_cluster_size = max(2, min(len(X) // 10, 5))
+    modelo = HDBSCAN(min_cluster_size=min_cluster_size, metric="euclidean", copy=True)
+    etiquetas = modelo.fit_predict(X).astype(int)
+
+    siguiente_id = int(etiquetas.max()) + 1 if etiquetas.size and etiquetas.max() >= 0 else 0
+    for i in range(len(etiquetas)):
+        if etiquetas[i] == -1:
+            etiquetas[i] = siguiente_id
+            siguiente_id += 1
+    return etiquetas
 
 
 def construir_grupos(

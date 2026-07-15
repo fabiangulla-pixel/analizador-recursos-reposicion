@@ -2,6 +2,30 @@
 
 Todas las novedades relevantes del proyecto, de la más reciente a la más antigua.
 
+## [1.3.0] — 2026-07-12 · Prioridad 2 del roadmap
+
+### Añadido
+- **Borrador real de decisión en Word** (`exportacion/borrador_decision.py`):
+  `borrador_decision.docx` con la estructura real del acto administrativo
+  (CONSIDERANDO numerado por grupo con evidencia citada textualmente,
+  RESUELVE con artículos), no solo un índice de referencia. Grupos nuevos
+  primero. Todo dato que solo el funcionario conoce queda `[PENDIENTE: ...]`
+  explícito. 8 tests, verificado imprimiendo el documento completo.
+- **Taxonomía de argumentos por categoría jurídica** (`procesamiento/taxonomia.py`):
+  7 categorías curadas, similitud de embeddings sin modelo nuevo. Calibrado
+  con el modelo real: 7/7 correctas en ejemplos jurídicos, umbral 0.30 con
+  margen amplio frente a ruido. Columna `categoria_juridica` en la matriz.
+- **HDBSCAN como método de clustering alternativo**
+  (`procesamiento/agrupador.py`): `metodo_clustering: "hdbscan"` en
+  `config.yaml`, sin dependencia nueva (ya en scikit-learn). Reasigna el
+  ruido (-1) a grupos individuales. Hallazgo de calibración documentado en
+  el ROADMAP: menos estable que agglomerative en muestras pequeñas con
+  `min_cluster_size=2` (7/10 semillas limpias en pruebas sintéticas) — sigue
+  siendo opcional, no el método por defecto.
+
+Con esto se completan los primeros 3 ítems de prioridad 2 del roadmap
+(queda pendiente el 8: gestión de expedientes).
+
 ## [1.2.0] — 2026-07-12 · Primer producto de la Suite Legal
 
 Este proyecto pasa a ser "P1 — Analizador PRO" de una suite comercial más

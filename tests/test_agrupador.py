@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from procesamiento.agrupador import agrupar_argumentos, construir_grupos
+from procesamiento.agrupador import _clustering_hdbscan, agrupar_argumentos, construir_grupos
 
 
 def _args(n, archivo="doc.pdf"):
@@ -47,3 +47,84 @@ def test_construir_grupos_calcula_metadatos():
     assert grande["recurrente"] is True  # presente en varios documentos
     assert grande["texto_representativo"] in ("argumento 0", "argumento 1")
     assert grande["centroide"].shape == (2,)
+
+
+def test_hdbscan_agrupa_dos_clusters_densos_reales():
+    # 6 puntos en dos nubes densas bien separadas + normalización previa.
+    # Semilla fija verificada manualmente (ver nota de estabilidad más abajo):
+    # con min_cluster_size=2, HDBSCAN es sensible a fluctuaciones de densidad
+    # locales en muestras muy pequeñas y puede fragmentar una nube densa en
+    # sub-grupos con otras semillas — no es un fallo de esta función, es una
+    # característica documentada del algoritmo a este ajuste. Este test
+    # verifica el comportamiento correcto en un caso reproducible, no que
+    # HDBSCAN sea perfectamente estable para cualquier entrada (no lo es).
+    rng = np.random.default_rng(2)
+    nube_a = rng.normal(loc=[1.0, 0.0, 0.0], scale=0.02, size=(6, 3))
+    nube_b = rng.normal(loc=[0.0, 1.0, 0.0], scale=0.02, size=(6, 3))
+    from sklearn.preprocessing import normalize
+
+    X = normalize(np.vstack([nube_a, nube_b]))
+
+    etiquetas = _clustering_hdbscan(X)
+    assert len(set(etiquetas[:6])) == 1  # toda la nube A en un solo grupo
+    assert len(set(etiquetas[6:])) == 1  # toda la nube B en un solo grupo
+    assert etiquetas[0] != etiquetas[6]  # y son grupos distintos entre sí
+
+
+def test_hdbscan_nunca_deja_expuesta_la_etiqueta_de_ruido():
+    # Con puntos deliberadamente dispersos (sin estructura de cluster clara),
+    # HDBSCAN marcaría casi todo como ruido (-1). Lo que SÍ es 100% garantizado
+    # por esta función (lógica propia, no de HDBSCAN) es que -1 nunca queda
+    # expuesto en el resultado final: cada punto de ruido se reasigna a un
+    # grupo individual único.
+    rng = np.random.default_rng(3)
+    X_disperso = rng.uniform(-1, 1, size=(10, 3))
+    from sklearn.preprocessing import normalize
+
+    X = normalize(X_disperso)
+
+    etiquetas = _clustering_hdbscan(X)
+    assert -1 not in etiquetas
+    assert len(etiquetas) == 10
+
+
+def test_hdbscan_reasigna_ruido_a_grupos_individuales_no_fusionados(monkeypatch):
+    # Qué puntos concretos HDBSCAN marca como ruido depende de la geometría
+    # exacta de los datos (no es algo que deba fijar un test unitario). Lo
+    # que SÍ es responsabilidad de esta función, y por tanto lo que se
+    # prueba aquí de forma determinista, es la lógica de reasignación:
+    # mockeamos la salida de HDBSCAN con dos etiquetas de ruido (-1) y
+    # verificamos que cada una recibe su propio grupo nuevo, sin fusionarse
+    # entre sí ni con los clusters reales 0 y 1.
+    class _HDBSCANFalso:
+        def __init__(self, **kwargs):
+            pass
+
+        def fit_predict(self, X):
+            return np.array([0, 0, 0, 1, 1, 1, -1, -1])
+
+    # _clustering_hdbscan importa HDBSCAN de forma diferida (dentro de la
+    # función); se parchea el módulo real, recogido en el import diferido.
+    import sklearn.cluster as sklearn_cluster_mod
+
+    monkeypatch.setattr(sklearn_cluster_mod, "HDBSCAN", _HDBSCANFalso)
+
+    etiquetas = _clustering_hdbscan(np.zeros((8, 3)))
+    assert -1 not in etiquetas
+    assert list(etiquetas[:6]) == [0, 0, 0, 1, 1, 1]  # clusters reales intactos
+    assert etiquetas[6] == 2  # primer punto de ruido -> nuevo grupo
+    assert etiquetas[7] == 3  # segundo punto de ruido -> otro grupo distinto
+    assert etiquetas[6] != etiquetas[7]
+
+
+def test_agrupar_argumentos_acepta_metodo_hdbscan():
+    rng = np.random.default_rng(2)
+    nube_a = rng.normal(loc=[1.0, 0.0], scale=0.02, size=(4, 2))
+    nube_b = rng.normal(loc=[0.0, 1.0], scale=0.02, size=(4, 2))
+    embeddings = np.vstack([nube_a, nube_b])
+
+    argumentos = agrupar_argumentos(_args(8), embeddings, metodo="hdbscan")
+    ids = [a["grupo_id"] for a in argumentos]
+    assert len(set(ids[:4])) == 1
+    assert len(set(ids[4:])) == 1
+    assert ids[0] != ids[4]

@@ -15,7 +15,9 @@ procesamiento:
   umbral_similitud: 0.75
   # Umbral para considerar que un argumento YA fue resuelto en la decisión base
   umbral_resuelto: 0.70
-  # Método de clustering: "kmeans" o "agglomerative"
+  # Método de clustering: "agglomerative" (recomendado), "kmeans" o "hdbscan"
+  # (hdbscan agrupa por densidad, sin fijar umbral_distancia de antemano;
+  # útil cuando los grupos varían mucho de tamaño)
   metodo_clustering: "agglomerative"
   # Número máximo de clusters (solo para kmeans). "auto" usa heurística.
   max_clusters: "auto"
