@@ -17,12 +17,25 @@ datas_cfg = [
     ("icono.ico",   "."),
 ]
 
-# Incluir el modelo completo dentro del ejecutable
+# Incluir el modelo completo dentro del ejecutable.
+# IMPORTANTE: sentence_transformers.SentenceTransformer(nombre, cache_folder=X)
+# exige la estructura real de caché de HuggingFace dentro de X:
+#   models--<org>--<modelo>/snapshots/<hash>/*  (+ refs/main con el hash)
+# Empaquetar el modelo en una carpeta plana (bug real detectado 14-jul-2026:
+# el .exe cargaba "OK" en apariencia pero cache_folder nunca encontraba el
+# modelo con esa forma, rompiendo la carga 100% offline) hace que la app
+# no encuentre el modelo sin internet aunque los archivos estén ahí.
+MODEL_HASH = os.path.basename(MODEL_SNAPSHOT)
+MODEL_REPO_DIR = os.path.dirname(os.path.dirname(MODEL_SNAPSHOT))
+_DEST_REPO = os.path.join("_modelos_cache",
+                          "models--sentence-transformers--paraphrase-multilingual-MiniLM-L12-v2")
+
 model_datas = []
 if os.path.isdir(MODEL_SNAPSHOT):
-    model_datas = [(MODEL_SNAPSHOT,
-                    os.path.join("_modelos_cache",
-                                 "paraphrase-multilingual-MiniLM-L12-v2"))]
+    model_datas = [(MODEL_SNAPSHOT, os.path.join(_DEST_REPO, "snapshots", MODEL_HASH))]
+    _refs_main = os.path.join(MODEL_REPO_DIR, "refs", "main")
+    if os.path.isfile(_refs_main):
+        model_datas.append((_refs_main, os.path.join(_DEST_REPO, "refs")))
 
 a = Analysis(
     ["main.py"],
@@ -46,6 +59,9 @@ a = Analysis(
         "huggingface_hub",
         "safetensors",
         "tokenizers",
+        "fitz",
+        "pymupdf",
+        "pytesseract",
     ]
     + collect_submodules("sklearn")
     + collect_submodules("sentence_transformers"),

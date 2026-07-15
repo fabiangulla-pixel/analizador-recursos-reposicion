@@ -23,12 +23,14 @@ _nombre_modelo_cargado: str | None = None
 def _get_cache_dir() -> str:
     """
     Devuelve la carpeta de caché del modelo.
-    En modo PyInstaller frozen usa una carpeta junto al ejecutable.
+    En modo PyInstaller frozen usa sys._MEIPASS: en builds one-folder (PyInstaller
+    6.x) es la carpeta persistente _internal/, donde realmente aterrizan los
+    datos empaquetados (datas del .spec) — no junto al .exe, que es un
+    directorio distinto y vacío. Mismo criterio que app/config_loader.py.
     En modo desarrollo usa la carpeta estándar de HuggingFace.
     """
     if getattr(sys, "frozen", False):
-        # Junto al ejecutable, dentro de una carpeta oculta de datos
-        base = os.path.dirname(sys.executable)
+        base = sys._MEIPASS
         return os.path.join(base, "_modelos_cache")
     return None  # None = HuggingFace usa su cache por defecto (~/.cache/huggingface)
 

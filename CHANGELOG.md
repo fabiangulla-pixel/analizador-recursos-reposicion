@@ -2,6 +2,47 @@
 
 Todas las novedades relevantes del proyecto, de la más reciente a la más antigua.
 
+## [1.3.1] — 2026-07-15 · Dos bugs críticos de empaquetado corregidos
+
+El .exe recompilado con todo lo de 1.2.0/1.3.0 **no cargaba el modelo 100%
+offline** — dos bugs independientes en `recursos_reposicion.spec` y
+`procesamiento/vectorizador.py`, encontrados al hacer el smoke-test real del
+build (no solo verificar que compilara):
+
+### Corregido
+- **Estructura de caché del modelo incorrecta**: `SentenceTransformer(...,
+  cache_folder=X)` exige la estructura real de HuggingFace dentro de X
+  (`models--<org>--<modelo>/snapshots/<hash>/*` + `refs/main`), pero el
+  `.spec` empaquetaba el modelo en una carpeta plana
+  (`_modelos_cache/paraphrase-multilingual-MiniLM-L12-v2/`). Corregido para
+  replicar la estructura anidada real, verificada cargando el modelo en una
+  caché vacía para confirmar el formato exacto antes de aplicar el fix.
+- **Ruta de caché apuntando al lugar equivocado**: PyInstaller 6.x (builds
+  one-folder) coloca todos los `datas` del `.spec` dentro de `_internal/`,
+  no junto al `.exe`. `_get_cache_dir()` en `vectorizador.py` buscaba con
+  `os.path.dirname(sys.executable)` (nivel del `.exe`, vacío), en vez de
+  `sys._MEIPASS` (que en builds one-folder es la carpeta `_internal/`
+  persistente donde realmente aterrizan los datos) — mismo patrón que ya
+  usaba correctamente `app/config_loader.py`. Ambos bugs se compensaban en
+  apariencia (el modelo "existía" en el build, solo que en el lugar
+  equivocado) y solo se detectan cargando el modelo de verdad, no
+  inspeccionando archivos.
+- **Verificación real, no solo build exitoso**: simulado el entorno frozen
+  exacto (`sys.frozen`, `sys._MEIPASS` apuntando al `_internal/` real del
+  build) con `HF_HUB_OFFLINE=1`, sin `HF_HOME` ni caché real del usuario
+  accesible (USERPROFILE/HOME apuntando a una carpeta inexistente) — el
+  modelo cargó y vectorizó correctamente sin ninguna red ni caché de
+  respaldo, confirmando que el .exe funciona 100% offline de verdad.
+
+Nota de diseño: se revisó también `utils/expedientes_db.py` (escrito hoy con
+el mismo patrón `os.path.dirname(sys.executable)`) — en ese caso SÍ es
+correcto, porque la base de datos se crea en tiempo de ejecución (no es un
+recurso pre-empaquetado que PyInstaller reubique), y tenerla junto al .exe
+es además más visible/conveniente para el usuario que dentro de `_internal/`.
+
+Redesplegado en `Desktop\Mis Apps\AnalizadorRecursos\` (ubicación real
+actual — el Escritorio se reorganizó desde el último despliegue conocido).
+
 ## [1.3.0] — 2026-07-12 · Prioridad 2 del roadmap
 
 ### Añadido
