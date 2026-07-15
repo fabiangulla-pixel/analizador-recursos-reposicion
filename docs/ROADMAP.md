@@ -94,9 +94,21 @@ el abogado decide — la herramienta organiza y evidencia.**
    (las otras fragmentaron una nube densa en sub-grupos espurios). Por eso
    sigue siendo una alternativa opcional, no el método por defecto — falta
    comparar directamente con el caso real 20016795 antes de recomendarlo.
-8. **Gestión de expedientes**: hoy cada análisis es una carpeta suelta; una vista
-   "expediente" (base + recursos + resultados + fecha) permitiría reabrir y
-   comparar análisis. SQLite local, como en otros proyectos de la casa.
+8. ⚠️ **Gestión de expedientes** — CAPA DE DATOS HECHA (12-jul-2026,
+   `utils/expedientes_db.py`, commit pendiente). Cada análisis exitoso queda
+   registrado en `expedientes.db` (SQLite local, junto al ejecutable): fecha,
+   nombre, rutas, total de documentos/argumentos/grupos. Conexión abierta y
+   cerrada por uso, nunca cacheada entre hilos (lección aprendida en otros
+   proyectos de la casa; `ejecutar_analisis` corre en un hilo separado de la
+   GUI). Registrar el expediente nunca revienta un análisis ya exitoso si
+   falla (capturado y solo registrado en el log).
+   **Falta la vista en la GUI** (listar/reabrir/comparar expedientes) — la
+   capa de datos está lista para que la use cuando se aborde la GUI en
+   general junto con el ítem 2bis (wire del calendario de oportunidad).
+
+**Prioridad 2 del roadmap: COMPLETA en su capa de datos/lógica** (los 4
+ítems: borrador de decisión, taxonomía, HDBSCAN, expedientes). Pendiente de
+GUI: 2bis y la vista de expedientes del ítem 8.
 
 ## Prioridad 3 — Explorar con calma
 

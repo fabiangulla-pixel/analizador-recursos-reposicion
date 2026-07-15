@@ -23,8 +23,17 @@ Todas las novedades relevantes del proyecto, de la más reciente a la más antig
   `min_cluster_size=2` (7/10 semillas limpias en pruebas sintéticas) — sigue
   siendo opcional, no el método por defecto.
 
-Con esto se completan los primeros 3 ítems de prioridad 2 del roadmap
-(queda pendiente el 8: gestión de expedientes).
+- **Registro de expedientes** (`utils/expedientes_db.py`): cada análisis
+  exitoso queda registrado en `expedientes.db` (SQLite local junto al
+  ejecutable) con fecha, nombre, rutas y totales. Conexión abierta y
+  cerrada por uso, nunca cacheada entre hilos. Un fallo al registrar nunca
+  revienta un análisis ya exitoso. Solo capa de datos: la vista en la GUI
+  (listar/reabrir/comparar expedientes) queda pendiente. 9 tests, incluida
+  una prueba de registros concurrentes desde 10 hilos.
+
+Con esto se completan los 4 ítems de prioridad 2 del roadmap en su capa de
+datos/lógica (queda pendiente conectar 2 de ellos a la GUI: el calendario de
+oportunidad y la vista de expedientes).
 
 ## [1.2.0] — 2026-07-12 · Primer producto de la Suite Legal
 

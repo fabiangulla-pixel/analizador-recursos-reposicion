@@ -26,6 +26,7 @@ from procesamiento.comparador import comparar_con_base, comparar_grupos_con_base
 from procesamiento.segmentador import segmentar_bloques
 from procesamiento.taxonomia import clasificar_argumentos
 from procesamiento.vectorizador import cargar_modelo, vectorizar
+from utils.expedientes_db import registrar_expediente
 from utils.logger import configurar_logger, obtener_logger
 
 
@@ -149,6 +150,20 @@ def ejecutar_analisis(
 
         progreso("Generando PDFs anotados...", 99)
         pdfs_anotados = generar_pdfs_anotados(argumentos, carpeta_recursos, carpeta_salida)
+
+        # Registro del expediente: no debe tumbar un análisis ya exitoso si falla.
+        try:
+            total_documentos = len({a.get("archivo", "") for a in argumentos})
+            registrar_expediente(
+                ruta_base,
+                carpeta_recursos,
+                carpeta_salida,
+                total_documentos,
+                len(argumentos),
+                len(grupos),
+            )
+        except Exception as e:
+            log.warning(f"No se pudo registrar el expediente: {e}")
 
         progreso("¡Análisis completado!", 100)
         log.info("=== Análisis completado exitosamente ===")
