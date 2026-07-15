@@ -21,6 +21,9 @@ procesamiento:
   max_clusters: "auto"
   # Umbral de distancia para agglomerative clustering (1 - similitud)
   umbral_distancia: 0.30
+  # Similitud mínima para asignar una categoría jurídica al argumento
+  # (si ninguna categoría la alcanza, queda "Sin clasificar")
+  umbral_categoria: 0.30
 
 exportacion:
   # Formatos de salida habilitados

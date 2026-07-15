@@ -24,6 +24,7 @@ from procesamiento.agrupador import agrupar_argumentos, construir_grupos
 from procesamiento.citas_normativas import anotar_citas
 from procesamiento.comparador import comparar_con_base, comparar_grupos_con_base
 from procesamiento.segmentador import segmentar_bloques
+from procesamiento.taxonomia import clasificar_argumentos
 from procesamiento.vectorizador import cargar_modelo, vectorizar
 from utils.logger import configurar_logger, obtener_logger
 
@@ -68,6 +69,7 @@ def ejecutar_analisis(
         umbral_res = cfg["procesamiento"]["umbral_resuelto"]
         umbral_dist = cfg["procesamiento"]["umbral_distancia"]
         metodo_cl = cfg["procesamiento"]["metodo_clustering"]
+        umbral_categoria = cfg["procesamiento"].get("umbral_categoria", 0.30)
 
         # ── 1. Leer resolución base ─────────────────────────────────────────
         progreso("Leyendo resolución sancionatoria base...", 10)
@@ -101,6 +103,9 @@ def ejecutar_analisis(
         progreso("Vectorizando argumentos...", 50)
         textos = [a["texto"] for a in argumentos]
         embeddings = vectorizar(textos)
+
+        progreso("Clasificando por categoría jurídica...", 55)
+        argumentos = clasificar_argumentos(argumentos, embeddings, umbral_categoria)
 
         # ── 5. Agrupar argumentos ───────────────────────────────────────────
         progreso("Agrupando argumentos similares...", 60)

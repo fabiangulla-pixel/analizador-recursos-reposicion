@@ -39,6 +39,13 @@ def test_matriz_incluye_fuente_texto_con_default_nativo(argumentos_procesados):
     assert df.loc[1, "fuente_texto"] == "nativo"  # sin campo → default nativo
 
 
+def test_matriz_incluye_categoria_juridica(argumentos_procesados):
+    argumentos_procesados[0]["categoria_juridica"] = "Debido proceso"
+    df = construir_dataframe(argumentos_procesados)
+    assert df.loc[0, "categoria_juridica"] == "Debido proceso"
+    assert df.loc[1, "categoria_juridica"] == ""  # sin clasificar aún → vacío
+
+
 def test_exportar_matriz_genera_xlsx_y_csv(argumentos_procesados, tmp_path):
     exportar_matriz(argumentos_procesados, str(tmp_path), True, True)
     xlsx = tmp_path / "matriz_argumentos.xlsx"
