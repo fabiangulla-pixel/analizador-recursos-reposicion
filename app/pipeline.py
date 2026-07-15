@@ -10,6 +10,7 @@ from collections.abc import Callable
 from typing import Any
 
 from app.config_loader import cargar_config
+from exportacion.borrador_decision import exportar_borrador_decision
 from exportacion.consolidado import exportar_consolidado_json, exportar_consolidado_markdown
 from exportacion.indice import exportar_indice_decision
 from exportacion.matriz import exportar_matriz
@@ -135,8 +136,11 @@ def ejecutar_analisis(
         progreso("Exportando trazabilidad...", 93)
         exportar_trazabilidad(argumentos, grupos, carpeta_salida, cfg)
 
-        progreso("Generando informe Word...", 97)
+        progreso("Generando informe Word...", 96)
         exportar_informe_word(argumentos, grupos, carpeta_salida)
+
+        progreso("Generando borrador de decisión...", 98)
+        exportar_borrador_decision(argumentos, grupos, carpeta_salida)
 
         progreso("Generando PDFs anotados...", 99)
         pdfs_anotados = generar_pdfs_anotados(argumentos, carpeta_recursos, carpeta_salida)
