@@ -23,6 +23,9 @@ analisis.log
 # Caché de modelos de embeddings
 _modelos_cache/
 
+# Caché de ruta local a Tesseract (específica de cada máquina, ver ingesta/ocr_respaldo.py)
+tesseract_path.txt
+
 # Secretos y configuración local (el proyecto no usa API keys, por si acaso)
 .env
 
