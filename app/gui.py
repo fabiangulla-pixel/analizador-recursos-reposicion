@@ -321,13 +321,23 @@ class AplicacionRecursos(tk.Tk):
     # ── Abrir carpeta de resultados ──────────────────────────────────────────
 
     def _abrir_carpeta_salida(self):
+        # macOS necesita su propia rama: `xdg-open` es de freedesktop y no
+        # existe ahí, así que la versión anterior abría la carpeta en Windows y
+        # en Linux, pero en Mac fallaba en silencio. El comando es `open`.
         if self._carpeta_salida and os.path.isdir(self._carpeta_salida):
-            if sys.platform == "win32":
-                os.startfile(self._carpeta_salida)
-            else:
-                import subprocess
+            import subprocess
 
-                subprocess.Popen(["xdg-open", self._carpeta_salida])
+            try:
+                if sys.platform == "win32":
+                    os.startfile(self._carpeta_salida)
+                elif sys.platform == "darwin":
+                    subprocess.Popen(["open", self._carpeta_salida])
+                else:
+                    subprocess.Popen(["xdg-open", self._carpeta_salida])
+            except OSError:
+                # Un visor ausente no debe tumbar la interfaz: abrir la carpeta
+                # es una cortesía al terminar, no el resultado del trabajo.
+                pass
 
     # ── Utilidades de UI ─────────────────────────────────────────────────────
 
